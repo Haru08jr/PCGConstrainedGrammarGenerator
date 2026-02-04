@@ -3,21 +3,22 @@
 #include <algorithm>
 #include <queue>
 
-GenerationResult Generator::generate(std::map<char, float>& symbolSize, float maxLength, NFA& nfa, std::vector<GenerationConstraint>& constraints) {
+GenerationResult Generator::generate(const map<char, float>& symbolSize, float maxLength, const NFA& nfa, const vector<GenerationConstraint>& constraints) {
     vector<GenerationResult> correctResults;
 
-    std::sort(constraints.begin(), constraints.end());
+    auto sortedConstraints = constraints;
+    std::sort(sortedConstraints.begin(), sortedConstraints.end());
 
     std::priority_queue<GenerationResult> queue;
     queue.emplace(nfa.getStart());
 
     while (!queue.empty()) {
-        auto element = queue.top();
+        const auto currentResult = queue.top();
         queue.pop();
 
         // for each edge going out of the current state
-        for (auto transition: nfa.getTransitions(element.currentState)) {
-            GenerationResult newResult = element;
+        for (const auto transition: nfa.getTransitions(currentResult.currentState)) {
+            GenerationResult newResult = currentResult;
             newResult.currentState = transition->getTo();
 
             if (transition->isEpsilon())
@@ -26,12 +27,12 @@ GenerationResult Generator::generate(std::map<char, float>& symbolSize, float ma
                 auto character = transition->getLabel().characters[0];
 
                 // if at the position of the next relevant constraint
-                if (newResult.constraintsMet < constraints.size() &&
-                    newResult.currentLength <= constraints[newResult.constraintsMet].position &&
-                    constraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSize[character]) {
+                if (newResult.constraintsMet < sortedConstraints.size() &&
+                    newResult.currentLength <= sortedConstraints[newResult.constraintsMet].position &&
+                    sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSize.at(character)) {
 
                     // if placing the correct character, mark constraint as solved
-                    if (constraints[newResult.constraintsMet].symbol == character) {
+                    if (sortedConstraints[newResult.constraintsMet].symbol == character) {
                         ++newResult.constraintsMet;
                     } else {
                         // else discard
@@ -40,7 +41,7 @@ GenerationResult Generator::generate(std::map<char, float>& symbolSize, float ma
                 }
 
                 newResult.currentString += character;
-                newResult.currentLength += symbolSize[character];
+                newResult.currentLength += symbolSize.at(character);
             }
 
             // discard result if max length is exceeded

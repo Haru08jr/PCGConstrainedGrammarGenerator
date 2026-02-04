@@ -12,6 +12,13 @@ struct GenerationConstraint {
     }
 };
 
+struct Literal {
+    char symbol;
+
+    float minSize;
+    float maxSize;
+};
+
 struct GenerationResult {
     explicit GenerationResult(State initialState) : currentState(initialState) {}
 
@@ -36,5 +43,5 @@ struct GenerationResult {
 
 class Generator {
 public:
-    static GenerationResult generate(map<char, float>& symbolSize, float maxLength, NFA& nfa, vector<GenerationConstraint>& constraints);
+    static GenerationResult generate(const map<char, float>& symbolSize, float maxLength, const NFA& nfa, const vector<GenerationConstraint>& constraints);
 };
