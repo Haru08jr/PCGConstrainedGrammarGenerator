@@ -114,11 +114,9 @@ class NFA {
         State start;
         State accept;
         unordered_map<State, set<Edge*>> states;
+
     public:
-        NFA() {
-            start = 0;
-            accept = 0;
-        }
+        NFA() : start(0), accept(0) {}
         NFA(const NFA& nfa) {
             start = nfa.start;
             accept = nfa.accept;
@@ -129,8 +127,9 @@ class NFA {
                 }
             }
         }
+
         void makeState(State name) {
-            if (states.find(name) == states.end()) {
+            if (!states.contains(name)) {
                 states.insert(make_pair(name, set<Edge*>()));
             }
         }
@@ -140,30 +139,31 @@ class NFA {
         void setAccept(State as) {
             accept = as;
         }
-        State getStart() {
+        [[nodiscard]] State getStart() const {
             return start;
         }
-        State getAccept() {
+        [[nodiscard]] State getAccept() const {
             return accept;
         }
         void addTransition(Edge* t) {
             if (states.at(t->getFrom()).find(t) == states.at(t->getFrom()).end())
                 states[t->getFrom()].insert(t);
         }
-        int size() {
+        [[nodiscard]] int size() const {
             return states.size();
         }
-        auto getStates() const {
+        [[nodiscard]] const auto& getStates() const {
             return states;
         }
-        set<Edge*>& getTransitions(State state) {
-            return states[state];
+        [[nodiscard]] const set<Edge*>& getTransitions(State state) const{
+            return states.at(state);
         }
+
         NFA& operator=(const NFA& nfa) {
             if (this != &nfa) {
                 start = nfa.start;
                 accept = nfa.accept;
-                for (auto m : nfa.states) {
+                for (const auto& m : nfa.states) {
                     makeState(m.first);
                     for (auto t : m.second) {
                         addTransition(t);
