@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <map>
+#include <utility>
 
 #include "../../libraries/ThompsonsConstruction/re_compiler.hpp"
 
@@ -12,9 +13,7 @@ struct GenerationConstraint {
     }
 };
 
-struct Literal {
-    char symbol;
-
+struct SizeRange {
     float minSize;
     float maxSize;
 };
@@ -41,7 +40,41 @@ struct GenerationResult {
     }
 };
 
+/*
+struct GenerationResultWithRange : GenerationResult {
+    std::map<char, SizeRange> symbolSizes;
+
+    GenerationResultWithRange(State initialState, const std::map<char, SizeRange>& initialSymbolSizes)
+        : GenerationResult(initialState), symbolSizes(initialSymbolSizes) {
+    }
+
+    [[nodiscard]] float GetCurrentMinLength() const {
+        float length = 0;
+        for (auto c : currentString) {
+            length += symbolSizes.at(c).minSize;
+        }
+        return length;
+    }
+
+    [[nodiscard]] float GetCurrentMaxLength() const {
+        float length = 0;
+        for (auto c : currentString) {
+            length += symbolSizes.at(c).maxSize;
+        }
+        return length;
+    }
+
+    bool operator<(const GenerationResultWithRange& other) const {
+        if (epsilons == other.epsilons) {
+            return GetCurrentMinLength() < other.GetCurrentMinLength();
+        }
+        return epsilons > other.epsilons;
+    }
+};*/
+
 class Generator {
 public:
-    static GenerationResult generate(const map<char, float>& symbolSize, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints);
+    static GenerationResult generate(const map<char, float>& symbolSizes, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints);
+
+    //static GenerationResultWithRange generate(const map<char, SizeRange>& symbolSizes, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints);
 };
