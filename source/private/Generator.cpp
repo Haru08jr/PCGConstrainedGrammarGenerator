@@ -3,11 +3,10 @@
 #include <algorithm>
 #include <queue>
 
-GenerationResult Generator::generate(const map<char, float>& symbolSize, float maxLength, const NFA& nfa, const vector<GenerationConstraint>& constraints) {
+GenerationResult Generator::generate(const map<char, float>& symbolSize, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints) {
     vector<GenerationResult> correctResults;
 
-    auto sortedConstraints = constraints;
-    std::sort(sortedConstraints.begin(), sortedConstraints.end());
+    std::sort(constraints.begin(), constraints.end());
 
     std::priority_queue<GenerationResult> queue;
     queue.emplace(nfa.getStart());
@@ -27,12 +26,12 @@ GenerationResult Generator::generate(const map<char, float>& symbolSize, float m
                 auto character = transition->getLabel().characters[0];
 
                 // if at the position of the next relevant constraint
-                if (newResult.constraintsMet < sortedConstraints.size() &&
-                    newResult.currentLength <= sortedConstraints[newResult.constraintsMet].position &&
-                    sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSize.at(character)) {
+                if (newResult.constraintsMet < constraints.size() &&
+                    newResult.currentLength <= constraints[newResult.constraintsMet].position &&
+                    constraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSize.at(character)) {
 
                     // if placing the correct character, mark constraint as solved
-                    if (sortedConstraints[newResult.constraintsMet].symbol == character) {
+                    if (constraints[newResult.constraintsMet].symbol == character) {
                         ++newResult.constraintsMet;
                     } else {
                         // else discard

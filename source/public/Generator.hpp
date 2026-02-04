@@ -43,5 +43,5 @@ struct GenerationResult {
 
 class Generator {
 public:
-    static GenerationResult generate(const map<char, float>& symbolSize, float maxLength, const NFA& nfa, const vector<GenerationConstraint>& constraints);
+    static GenerationResult generate(const map<char, float>& symbolSize, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints);
 };
