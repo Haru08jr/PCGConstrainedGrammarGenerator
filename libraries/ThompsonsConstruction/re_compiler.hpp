@@ -31,7 +31,7 @@ class NFACompiler {
         NFA singleTransitionNFA(RegExToken c) {
             NFA nfa;
             initNextNFA(nfa);
-            if (c.charachters.empty())
+            if (c.characters.empty())
                 nfa.addTransition(new EpsilonEdge(nfa.getStart(), nfa.getAccept()));
             else
                 nfa.addTransition(new CharEdge(nfa.getStart(), nfa.getAccept(), c)); 
@@ -168,7 +168,7 @@ class NFACompiler {
                 }
                 case RE_QUANTIFIER: {
                     NFA a = nfaStack.pop();
-                    return repeatNTimes(a, atoi(ast->getSymbol().charachters.c_str()));
+                    return repeatNTimes(a, atoi(ast->getSymbol().characters.c_str()));
                 }
                 default:
                     break;

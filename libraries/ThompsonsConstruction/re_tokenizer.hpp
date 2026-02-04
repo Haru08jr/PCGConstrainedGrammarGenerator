@@ -19,8 +19,8 @@ inline vector<string> reSymStr = {
 
 struct RegExToken {
     RegExSymbol symbol;
-    string charachters;
-    RegExToken(RegExSymbol s = RE_NONE, string ch = "nil") : symbol(s), charachters(ch) { }
+    string characters;
+    RegExToken(RegExSymbol s = RE_NONE, string ch = "nil") : symbol(s), characters(ch) { }
 };
 
 class Tokenizer {
@@ -32,7 +32,7 @@ class Tokenizer {
             string buff;
             buff.push_back(ch);
             nt.symbol = sym;
-            nt.charachters = buff;
+            nt.characters = buff;
         }
         void setSpecified(RegExToken& nt, string re, int& idx) {
             string buff;
@@ -43,7 +43,7 @@ class Tokenizer {
                     isRange = true;
                 buff.push_back(re[idx++]);
             }
-            nt.charachters = buff;
+            nt.characters = buff;
             nt.symbol = isRange ? RE_SPECIFIEDRANGE:RE_SPECIFIEDSET;
         }
         void setQuantifier(RegExToken& nt, string re, int& idx) {
@@ -51,7 +51,7 @@ class Tokenizer {
             while (idx < re.length() && isdigit(re[idx])) {
                 buff.push_back(re[idx++]);
             }
-            nt.charachters = buff;
+            nt.characters = buff;
             nt.symbol = RE_QUANTIFIER;
         }
     public:

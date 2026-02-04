@@ -50,16 +50,16 @@ class ExpressionOperator : public RegularExpression {
         }
 };
 
-void traverse(RegularExpression* h, int d) {
+inline void traverse(RegularExpression* h, int d) {
     if (h != nullptr) {
         traverse(h->getLeft(), d+1);
         for (int i = 0; i < d; i++) cout<<"  ";
-        cout<<h->getSymbol().charachters<<endl;
+        cout<<h->getSymbol().characters<<endl;
         traverse(h->getRight(), d+1);
     }
 }
 
-bool isOp(char c) {
+inline bool isOp(char c) {
     switch (c) {
         case '|': case '@': case '?': case '+': case '*':
             return true;
@@ -69,7 +69,7 @@ bool isOp(char c) {
     return false;
 }
 
-bool isOp(RegExToken c) {
+inline bool isOp(RegExToken c) {
     switch (c.symbol) {
         case RE_STAR:
         case RE_PLUS:

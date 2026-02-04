@@ -31,10 +31,10 @@ class CharEdge : public Edge {
         bool checkInRange(char c) {
             char lo, hi;
             bool is_good = false;
-            for (int i = 1; i < label.charachters.size()-1; i++) {
-                if (i+1 < label.charachters.size() && label.charachters[i] == '-') {
-                    lo = label.charachters[i-1];
-                    hi = label.charachters[i+1];
+            for (int i = 1; i < label.characters.size()-1; i++) {
+                if (i+1 < label.characters.size() && label.characters[i] == '-') {
+                    lo = label.characters[i-1];
+                    hi = label.characters[i+1];
                     if (hi < lo) {
                         char tmp = hi;
                         hi = lo;
@@ -63,7 +63,7 @@ class CharEdge : public Edge {
         }
         bool matches(char c) {
             if (label.symbol == RE_SPECIFIEDSET) {
-                for (char m : label.charachters) {
+                for (char m : label.characters) {
                     if (c == m)
                         return true;
                 }
@@ -71,7 +71,7 @@ class CharEdge : public Edge {
             } else if (label.symbol == RE_SPECIFIEDRANGE) {
                 return checkInRange(c);
             }
-            return label.charachters[0] == c;
+            return label.characters[0] == c;
         }
         RegExToken getLabel() {
             return label;
@@ -97,18 +97,15 @@ class EpsilonEdge : public Edge {
 };
 
 
-
-
-
-bool operator<(const Edge& s, const Edge& t) {
+inline bool operator<(const Edge& s, const Edge& t) {
     return s.getFrom() < t.getFrom() && s.getTo() < t.getTo();
 }
 
-bool operator==(const Edge& s, const Edge& t) {
+inline bool operator==(const Edge& s, const Edge& t) {
     return s.getFrom() == t.getFrom() && s.getTo() == t.getTo();
 }
 
-bool operator!=(const Edge& s, const Edge& t) {
+inline bool operator!=(const Edge& s, const Edge& t) {
     return !(s == t);
 }
 
