@@ -4,7 +4,6 @@
 #include "source/public/RegexPreprocessor.hpp"
 #include "source/public/Generator.hpp"
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
     //RegexPreprocessor regex("(door|wall)*", {"door","window","wall"});
 
@@ -27,5 +26,6 @@ int main() {
 
     auto result = Generator::generate(symbolSize, 7.1f, nfa, constraints);
 
+    std::cout << result.currentString << std::flush;
     return 0;
 }
