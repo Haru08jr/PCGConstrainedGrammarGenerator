@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include <stack>
+
 #include <string>
 
 #include "NFA.hpp"
@@ -11,11 +11,10 @@
 
 class NFACompiler {
 public:
-    void fromRegex(const RegularExpression& regex, NFA& outNFA);
+    void fromRegex(const std::shared_ptr<RegularExpression>& regex, NFA& outNFA);
     //NFA fromRegex(const RegularExpression& regex);
 
 private:
-    std::stack<NFA> nfaStack;
     int nextStateLabel = 0;
 
     /** Get a new unique state label. */

@@ -15,10 +15,15 @@ bool RegexParser::consumeSpecifiedChar(char c) {
 }
 
 char RegexParser::consumeNextChar() {
+    if (parseIndex >= regexString.size())
+        return -1;
     return regexString[parseIndex++];
 }
 
 char RegexParser::peekNextChar() const {
+    if (parseIndex >= regexString.size())
+        return -1;
+
     return regexString[parseIndex];
 }
 
@@ -44,10 +49,19 @@ std::unique_ptr<RegularExpression> RegexParser::parseValue() {
 
 std::unique_ptr<RegularExpression> RegexParser::parseLiteral() {
     std::string literalString;
-    while (!isOperator(peekNextChar())) {
+    while (!isOperator(peekNextChar()) && peekNextChar() != -1) {
         literalString += consumeNextChar();
     }
     return std::make_unique<LiteralRegex>(literalString);
+}
+
+int RegexParser::parseNumber() {
+    int number = 0;
+    while (isdigit(peekNextChar())) {
+        number *= 10;
+        number += consumeNextChar() - '0';
+    }
+    return number;
 }
 
 std::unique_ptr<RegularExpression> RegexParser::parseRepetition() {
@@ -82,15 +96,27 @@ std::unique_ptr<RegularExpression> RegexParser::parseAlternative() {
 }
 
 std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
-    consumeSpecifiedChar(StartGroup);
+    bool groupStarted = consumeSpecifiedChar(StartGroup);
     auto regex = parseAlternative();
-    consumeSpecifiedChar(EndGroup);
+    bool groupEnd = consumeSpecifiedChar(EndGroup);
+
+    // error if group end was found without start
+    if (groupStarted != groupEnd)
+        throw std::out_of_range("Invalid regex string!");
+
+    // if number after group: repeat group that many times
+    if (isdigit(peekNextChar()))
+        regex = std::make_unique<UnaryRegexWithParam>(std::move(regex), parseNumber());
 
     return regex;
 }
 
-RegexParser::RegexParser(std::string regexString): regexString(std::move(regexString)), parseIndex(0) {
-    parsedRegexTree = parseGroup();
+RegexParser::RegexParser(std::string string): regexString(std::move(string)), parseIndex(0) {
+    parsedRegexTree = parseAlternative();
+
+    if (parseIndex < regexString.size()) {
+        throw std::out_of_range("Invalid regex string!");
+    }
 }
 
 std::shared_ptr<RegularExpression> RegexParser::getParsedRegex() const {

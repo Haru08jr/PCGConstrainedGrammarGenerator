@@ -25,8 +25,8 @@ int main() {
     auto result = Generator::generate(symbolSize, 7.1f, nfa, constraints);
     std::cout << result.currentString << std::flush;
 */
-    RegexParser parser("[wall|[column,door,column]]*");
-    auto regex = parser.getParsedRegex();
+    const RegexParser parser("wall]");
+    const auto regex = parser.getParsedRegex();
 
     NFACompiler compiler;
     NFA nfa;

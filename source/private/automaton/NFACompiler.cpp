@@ -4,54 +4,54 @@
 
 #include "../../public/automaton/NFACompiler.hpp"
 
-void NFACompiler::fromRegex(const RegularExpression& regex, NFA& outNFA) {
-    if (!regex.isValid())
+void NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex, NFA& outNFA) {
+    if (!regex->isValid())
         return;
 
-    if (regex.type & Literal) {
-        auto& literalRegex = static_cast<const LiteralRegex&>(regex);
-        outNFA = makeAtomicNFA(literalRegex.literalString);
+    if (regex->type & Literal) {
+        auto literalRegex = std::static_pointer_cast<LiteralRegex>(regex);
+        outNFA = makeAtomicNFA(literalRegex->literalString);
         return;
     }
 
-    if (regex.type & Unary) {
-        auto& unaryRegex = static_cast<const UnaryRegex&>(regex);
+    if (regex->type & Unary) {
+        auto unaryRegex = std::static_pointer_cast<UnaryRegex>(regex);
         NFA subNFA;
-        fromRegex(*unaryRegex.subRegex, subNFA);
+        fromRegex(unaryRegex->subRegex, subNFA);
 
-        if (unaryRegex.type == Repeat) {
+        if (unaryRegex->type == Repeat) {
             outNFA = repeat(subNFA);
-        }else if (unaryRegex.type == RepeatAtLeastOnce) {
+        }else if (unaryRegex->type == RepeatAtLeastOnce) {
             outNFA = repeatAtLeastOnce(subNFA);
-        }else if (unaryRegex.type == Option) {
+        }else if (unaryRegex->type == Option) {
             outNFA = optional(subNFA);
         }
 
         return;
     }
 
-    if (regex.type & Binary) {
-        auto& binaryRegex = static_cast<const BinaryRegex&>(regex);
+    if (regex->type & Binary) {
+        auto binaryRegex = std::static_pointer_cast<BinaryRegex>(regex);
         NFA firstSubNFA;
-        fromRegex(*binaryRegex.firstSubRegex, firstSubNFA);
+        fromRegex(binaryRegex->firstSubRegex, firstSubNFA);
         NFA secondSubNFA;
-        fromRegex(*binaryRegex.firstSubRegex, secondSubNFA);
+        fromRegex(binaryRegex->firstSubRegex, secondSubNFA);
 
-        if (binaryRegex.type == Concatenation) {
+        if (binaryRegex->type == Concatenation) {
             outNFA = concatenate(firstSubNFA, secondSubNFA);
-        }else if (binaryRegex.type == Alternative) {
+        }else if (binaryRegex->type == Alternative) {
             outNFA = alternative(firstSubNFA, secondSubNFA);
         }
 
         return;
     }
 
-    if (regex.type & RepeatNTimes) {
-        auto& paramRegex = static_cast<const UnaryRegexWithParam&>(regex);
+    if (regex->type & RepeatNTimes) {
+        auto paramRegex = std::static_pointer_cast<UnaryRegexWithParam>(regex);
         NFA subNFA;
-        fromRegex(*paramRegex.subRegex, subNFA);
+        fromRegex(paramRegex->subRegex, subNFA);
 
-        outNFA = repeatNTimes(subNFA, paramRegex.parameter);
+        outNFA = repeatNTimes(subNFA, paramRegex->parameter);
 
         return;
     }

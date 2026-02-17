@@ -1,8 +1,7 @@
 ﻿#pragma once
+
 #include <regex>
 #include <utility>
-
-#include "RegexToken.hpp"
 
 enum RegexType {
     Literal = 1,
@@ -39,26 +38,26 @@ public:
 
 class UnaryRegex : public RegularExpression {
 public:
-    std::unique_ptr<RegularExpression> subRegex;
+    std::shared_ptr<RegularExpression> subRegex;
 
-    UnaryRegex(RegexType type, std::unique_ptr<RegularExpression> subRegex)
+    UnaryRegex(RegexType type, std::shared_ptr<RegularExpression> subRegex)
         : RegularExpression(type & Unary ? type : Invalid), subRegex(std::move(subRegex)) {}
 };
 
 class BinaryRegex : public RegularExpression {
 public:
-    std::unique_ptr<RegularExpression> firstSubRegex;
-    std::unique_ptr<RegularExpression> secondSubRegex;
+    std::shared_ptr<RegularExpression> firstSubRegex;
+    std::shared_ptr<RegularExpression> secondSubRegex;
 
-    BinaryRegex(RegexType type, std::unique_ptr<RegularExpression> firstSubRegex, std::unique_ptr<RegularExpression> secondSubRegex)
+    BinaryRegex(RegexType type, std::shared_ptr<RegularExpression> firstSubRegex, std::shared_ptr<RegularExpression> secondSubRegex)
         : RegularExpression(type & Binary ? type : Invalid), firstSubRegex(std::move(firstSubRegex)), secondSubRegex(std::move(secondSubRegex)) {}
 };
 
 class UnaryRegexWithParam : public RegularExpression {
 public:
-    std::unique_ptr<RegularExpression> subRegex;
+    std::shared_ptr<RegularExpression> subRegex;
     int parameter;
 
-    UnaryRegexWithParam(std::unique_ptr<RegularExpression> subRegex, int parameter)
+    UnaryRegexWithParam(std::shared_ptr<RegularExpression> subRegex, int parameter)
         : RegularExpression(RepeatNTimes), subRegex(std::move(subRegex)), parameter(parameter) {}
 };
