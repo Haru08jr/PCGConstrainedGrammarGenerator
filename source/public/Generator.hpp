@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include <map>
 #include <utility>
+#include <vector>
 
-#include "../../libraries/ThompsonsConstruction/re_compiler.hpp"
+#include "automaton/Edge.hpp"
+#include "automaton/NFA.hpp"
 
 struct GenerationConstraint {
     char symbol;
@@ -74,7 +76,7 @@ struct GenerationResultWithRange : GenerationResult {
 
 class Generator {
 public:
-    static GenerationResult generate(const map<char, float>& symbolSizes, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints);
+    static GenerationResult generate(const std::map<char, float>& symbolSizes, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
 
     //static GenerationResultWithRange generate(const map<char, SizeRange>& symbolSizes, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints);
 };

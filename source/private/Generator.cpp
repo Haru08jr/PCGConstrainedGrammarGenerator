@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <queue>
 
-GenerationResult Generator::generate(const map<char, float>& symbolSizes, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints) {
-    vector<GenerationResult> correctResults;
-
+GenerationResult Generator::generate(const std::map<char, float>& symbolSizes, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) {
+    std::vector<GenerationResult> correctResults;
+    /*
     std::sort(constraints.begin(), constraints.end());
 
     std::priority_queue<GenerationResult> queue;
@@ -15,8 +15,9 @@ GenerationResult Generator::generate(const map<char, float>& symbolSizes, float 
         const auto currentResult = queue.top();
         queue.pop();
 
+
         // for each edge going out of the current state
-        for (const auto transition: nfa.getTransitions(currentResult.currentState)) {
+        for (const auto transition: nfa.getAllTransitions(currentResult.currentState)) {
             GenerationResult newResult = currentResult;
             newResult.currentState = transition->getTo();
 
@@ -75,7 +76,7 @@ GenerationResult Generator::generate(const map<char, float>& symbolSizes, float 
         }
         return a.currentLength > b.currentLength;
     });
-
+    */
     return correctResults[0];
 }
 /*
