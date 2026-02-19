@@ -6,7 +6,7 @@
 #include "source/public/regex/RegexParser.hpp"
 
 int main() {
-    const RegexParser parser("[d]5");
+    const RegexParser parser("[w|c,d,c]*");
     const auto regex = parser.getParsedRegex();
 
     const NFACompiler compiler(regex);
@@ -20,7 +20,7 @@ int main() {
     std::vector<GenerationConstraint> constraints;
     constraints.emplace_back("d", 3.f);
 
-    const auto result = Generator::generate(symbolSize, 4.f, nfa, constraints);
+    const auto result = Generator::generate(symbolSize, 7.1f, nfa, constraints);
     std::cout << result.getGeneratedString() << std::flush;
 
     return 0;

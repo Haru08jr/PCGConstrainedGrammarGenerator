@@ -2,11 +2,11 @@
 // Created by jreut on 17.02.2026.
 //
 
-#include "RegexParser.hpp"
+#include "../../public/regex/RegexParser.hpp"
 
 #include <utility>
 
-#include "../utils/StringUtils.hpp"
+#include "../../public/utils/StringUtils.hpp"
 
 bool RegexParser::consumeSpecifiedChar(char c) {
     if (peekNextChar() == c) {
