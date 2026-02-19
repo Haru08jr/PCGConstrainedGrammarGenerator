@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <queue>
 
-GenerationResult Generator::generate(const std::map<char, float>& symbolSizes, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) {
+GenerationResult Generator::generate(const std::map<std::string, float>& symbolSizes, float maxLength, const std::shared_ptr<NFA>& nfa, std::vector<GenerationConstraint> constraints) {
     std::vector<GenerationResult> correctResults;
-    /*
+
     std::sort(constraints.begin(), constraints.end());
 
     std::priority_queue<GenerationResult> queue;
-    queue.emplace(nfa.getStart());
+    queue.emplace(nfa->getStart());
 
     while (!queue.empty()) {
         const auto currentResult = queue.top();
@@ -17,22 +17,22 @@ GenerationResult Generator::generate(const std::map<char, float>& symbolSizes, f
 
 
         // for each edge going out of the current state
-        for (const auto transition: nfa.getAllTransitions(currentResult.currentState)) {
+        for (const auto& transition: nfa->getAllTransitions(currentResult.currentState)) {
             GenerationResult newResult = currentResult;
-            newResult.currentState = transition->getTo();
+            newResult.currentState = transition.getTo();
 
-            if (transition->isEpsilon())
+            if (transition.isEpsilon())
                 ++newResult.epsilons;
             else {
-                auto character = transition->getLabel().characters[0];
+                auto symbol = transition.getLabel();
 
                 // if at the position of the next relevant constraint
                 if (newResult.constraintsMet < constraints.size() &&
                     newResult.currentLength <= constraints[newResult.constraintsMet].position &&
-                    constraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSizes.at(character)) {
+                    constraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSizes.at(symbol)) {
 
                     // if placing the correct character, mark constraint as solved
-                    if (constraints[newResult.constraintsMet].symbol == character) {
+                    if (constraints[newResult.constraintsMet].symbol == symbol) {
                         ++newResult.constraintsMet;
                     } else {
                         // else discard
@@ -40,8 +40,8 @@ GenerationResult Generator::generate(const std::map<char, float>& symbolSizes, f
                     }
                 }
 
-                newResult.currentString += character;
-                newResult.currentLength += symbolSizes.at(character);
+                newResult.currentSymbols.push_back(symbol);
+                newResult.currentLength += symbolSizes.at(symbol);
             }
 
             // discard result if max length is exceeded
@@ -50,7 +50,7 @@ GenerationResult Generator::generate(const std::map<char, float>& symbolSizes, f
             }
 
             // if at a accepting state & all constraints are met
-            if (nfa.getAccept() == newResult.currentState && newResult.constraintsMet == constraints.size()) {
+            if (nfa->getAccept() == newResult.currentState && newResult.constraintsMet == constraints.size()) {
                 if (newResult.currentLength == maxLength) {
                     // found optimal result, return
                     return newResult;
@@ -76,82 +76,6 @@ GenerationResult Generator::generate(const std::map<char, float>& symbolSizes, f
         }
         return a.currentLength > b.currentLength;
     });
-    */
+
     return correctResults[0];
 }
-/*
-GenerationResultWithRange Generator::generate(const map<char, SizeRange>& symbolSizes, float maxLength, const NFA& nfa, vector<GenerationConstraint> constraints) {
-    vector<GenerationResultWithRange> correctResults;
-
-    std::sort(constraints.begin(), constraints.end());
-
-    std::priority_queue<GenerationResultWithRange> queue;
-    queue.emplace(nfa.getStart(), symbolSizes);
-
-    while (!queue.empty()) {
-        const auto currentResult = queue.top();
-        queue.pop();
-
-        // for each edge going out of the current state
-        for (const auto transition: nfa.getTransitions(currentResult.currentState)) {
-            GenerationResultWithRange newResult = currentResult;
-            newResult.currentState = transition->getTo();
-
-            if (transition->isEpsilon())
-                ++newResult.epsilons;
-            else {
-                auto character = transition->getLabel().characters[0];
-
-                // if at the position of the next relevant constraint
-                if (newResult.constraintsMet < constraints.size() &&
-                    newResult.currentLength <= constraints[newResult.constraintsMet].position &&
-                    constraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSizes.at(character)) {
-
-                    // if placing the correct character, mark constraint as solved
-                    if (constraints[newResult.constraintsMet].symbol == character) {
-                        ++newResult.constraintsMet;
-                    } else {
-                        // else discard
-                        continue;
-                    }
-                }
-
-                newResult.currentString += character;
-            }
-
-            // discard result if max length is exceeded
-            if (newResult.GetCurrentMinLength() > maxLength) {
-                continue;
-            }
-
-            // if at a accepting state & all constraints are met
-            if (nfa.getAccept() == newResult.currentState && newResult.constraintsMet == constraints.size()) {
-                if (newResult.GetCurrentMaxLength() == maxLength) {
-                    // found optimal result, return
-                    return newResult;
-                }
-                // save result as correct
-                correctResults.push_back(newResult);
-            }
-
-            // else add back to queue
-            queue.emplace(newResult);
-        }
-    }
-
-    // constraints couldn't be satisfied
-    if (correctResults.empty()) {
-        return {-1, {}};
-    }
-
-    // return the best result found (the longest result with the least amount of epsilons)
-    std::sort(correctResults.begin(), correctResults.end(), [](const GenerationResult& a, const GenerationResult& b) {
-        if (a.currentLength == b.currentLength) {
-            return a.epsilons < b.epsilons;
-        }
-        return a.currentLength > b.currentLength;
-    });
-
-    return correctResults[0];
-
-}*/

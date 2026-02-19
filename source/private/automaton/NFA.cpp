@@ -12,6 +12,8 @@ NFA::NFA(State start, State accept) : start(start), accept(accept){
 NFA::NFA(const NFA& other) : start(other.start), accept(other.accept) {
     for (const auto& [state, edges]: other.states) {
         addState(state);
+    }
+    for (const auto& [state, edges]: other.states) {
         for (const auto& edge : edges) {
             addTransition(edge);
         }

@@ -22,11 +22,13 @@ public:
     [[nodiscard]] std::string getLabel() const { return label; }
 
     bool operator<(const Edge& other) const {
-        return from < other.from && to < other.to;
+        return from < other.from
+            || from == other.from && to < other.to
+            || from == other.from && to == other.to && getLabel() < other.getLabel();
     }
 
     bool operator==(const Edge& other) const {
-        return from == other.from && to == other.to;
+        return from == other.from && to == other.to && isEpsilonEdge == other.isEpsilonEdge && label == other.label;
     }
 
 private:

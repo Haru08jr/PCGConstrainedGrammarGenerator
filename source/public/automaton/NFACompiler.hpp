@@ -24,7 +24,7 @@ private:
     /** Get a new unique state label. */
     State makeNewStateLabel() { return nextStateLabel++; }
     /** Add a copy of all states and transitions in source into dest. */
-    static void copyContent(const std::unique_ptr<NFA>& dest, const std::shared_ptr<NFA>& source);
+    static void copyContent(const std::unique_ptr<NFA>& dest, const std::unique_ptr<NFA>& source);
 
     // NFA construction functions
     /** Create a new NFA with only a start and accept state and no transitions. */
@@ -35,19 +35,19 @@ private:
     std::unique_ptr<NFA> makeAtomicNFA(const std::string& label);
 
     /** Create a new NFA of the structure (start -> (nfa) -> accept). */
-    std::unique_ptr<NFA> wrapNFA(const std::shared_ptr<NFA>& toWrap);
+    std::unique_ptr<NFA> wrapNFA(const std::unique_ptr<NFA>& toWrap);
 
     /** Create a new NFA that represents the regex [first,second] */
-    static std::unique_ptr<NFA> concatenate(const std::shared_ptr<NFA>& first, const std::shared_ptr<NFA>& second);
+    static std::unique_ptr<NFA> concatenate(const std::unique_ptr<NFA>& first, const std::unique_ptr<NFA>& second);
     /** Create a new NFA that represents the regex [toRepeat]* */
-    std::unique_ptr<NFA> repeat(const std::shared_ptr<NFA>& toRepeat);
+    std::unique_ptr<NFA> repeat(const std::unique_ptr<NFA>& toRepeat);
     /** Create a new NFA that represents the regex [toRepeat]+ */
-    std::unique_ptr<NFA> repeatAtLeastOnce(const std::shared_ptr<NFA>& toRepeat);
+    std::unique_ptr<NFA> repeatAtLeastOnce(const std::unique_ptr<NFA>& toRepeat);
     /** Create a new NFA that represents the regex [first|second] */
-    std::unique_ptr<NFA> alternative(const std::shared_ptr<NFA>& first, const std::shared_ptr<NFA>& second);
+    std::unique_ptr<NFA> alternative(const std::unique_ptr<NFA>& first, const std::unique_ptr<NFA>& second);
     /** Create a new NFA that represents the regex [optional]? */
-    std::unique_ptr<NFA> optional(const std::shared_ptr<NFA>& optional);
+    std::unique_ptr<NFA> optional(const std::unique_ptr<NFA>& optional);
     /** Create a new NFA that represents the regex [toRepeat]n */
-    std::unique_ptr<NFA> repeatNTimes(const std::shared_ptr<NFA>& toRepeat, int n);
+    std::unique_ptr<NFA> repeatNTimes(const std::unique_ptr<NFA>& toRepeat, int n);
 
 };
