@@ -25,7 +25,7 @@ public:
     explicit RegularExpression(RegexType type) : type(type) {}
     virtual ~RegularExpression() = default;
 
-    [[nodiscard]] bool isValid() const {return type == Invalid;}
+    [[nodiscard]] bool isValid() const {return type != Invalid;}
 };
 
 class LiteralRegex : public RegularExpression {

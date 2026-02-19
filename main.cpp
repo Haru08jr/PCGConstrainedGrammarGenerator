@@ -28,9 +28,8 @@ int main() {
     const RegexParser parser("[a*, b, a*]");
     const auto regex = parser.getParsedRegex();
 
-    NFACompiler compiler;
-    NFA nfa;
-    compiler.fromRegex(regex, nfa);
+    const NFACompiler compiler(regex);
+    auto nfa = compiler.getConstructedNFA();
 
     return 0;
 }

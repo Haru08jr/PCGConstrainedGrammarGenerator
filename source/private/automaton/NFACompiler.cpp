@@ -4,165 +4,165 @@
 
 #include "../../public/automaton/NFACompiler.hpp"
 
-void NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex, NFA& outNFA) {
+NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) :constructedNFA(fromRegex(regex)){
+}
+
+std::shared_ptr<NFA> NFACompiler::getConstructedNFA() const {
+    return constructedNFA;
+}
+
+std::unique_ptr<NFA> NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
     if (!regex->isValid())
-        return;
+        return nullptr;
 
     if (regex->type & Literal) {
-        auto literalRegex = std::static_pointer_cast<LiteralRegex>(regex);
-        outNFA = makeAtomicNFA(literalRegex->literalString);
-        return;
+        const auto literalRegex = std::static_pointer_cast<LiteralRegex>(regex);
+        return makeAtomicNFA(literalRegex->literalString);
     }
 
     if (regex->type & Unary) {
-        auto unaryRegex = std::static_pointer_cast<UnaryRegex>(regex);
-        NFA subNFA;
-        fromRegex(unaryRegex->subRegex, subNFA);
+        const auto unaryRegex = std::static_pointer_cast<UnaryRegex>(regex);
+        auto subNFA = fromRegex(unaryRegex->subRegex);
 
-        if (unaryRegex->type == Repeat) {
-            outNFA = repeat(subNFA);
-        }else if (unaryRegex->type == RepeatAtLeastOnce) {
-            outNFA = repeatAtLeastOnce(subNFA);
-        }else if (unaryRegex->type == Option) {
-            outNFA = optional(subNFA);
-        }
+        if (unaryRegex->type == Repeat)
+            return repeat(std::move(subNFA));
 
-        return;
+        if (unaryRegex->type == RepeatAtLeastOnce)
+            return repeatAtLeastOnce(std::move(subNFA));
+
+        if (unaryRegex->type == Option)
+            return optional(std::move(subNFA));
+
     }
 
     if (regex->type & Binary) {
-        auto binaryRegex = std::static_pointer_cast<BinaryRegex>(regex);
-        NFA firstSubNFA;
-        fromRegex(binaryRegex->firstSubRegex, firstSubNFA);
-        NFA secondSubNFA;
-        fromRegex(binaryRegex->firstSubRegex, secondSubNFA);
+        const auto binaryRegex = std::static_pointer_cast<BinaryRegex>(regex);
+        auto firstSubNFA = fromRegex(binaryRegex->firstSubRegex);
+        auto secondSubNFA = fromRegex(binaryRegex->firstSubRegex);
 
-        if (binaryRegex->type == Concatenation) {
-            outNFA = concatenate(firstSubNFA, secondSubNFA);
-        }else if (binaryRegex->type == Alternative) {
-            outNFA = alternative(firstSubNFA, secondSubNFA);
-        }
+        if (binaryRegex->type == Concatenation)
+            return concatenate(std::move(firstSubNFA), std::move(secondSubNFA));
 
-        return;
+        if (binaryRegex->type == Alternative)
+            return alternative(std::move(firstSubNFA), std::move(secondSubNFA));
+
     }
 
     if (regex->type & RepeatNTimes) {
-        auto paramRegex = std::static_pointer_cast<UnaryRegexWithParam>(regex);
-        NFA subNFA;
-        fromRegex(paramRegex->subRegex, subNFA);
+        const auto paramRegex = std::static_pointer_cast<UnaryRegexWithParam>(regex);
+        auto subNFA = fromRegex(paramRegex->subRegex);
 
-        outNFA = repeatNTimes(subNFA, paramRegex->parameter);
-
-        return;
+        return repeatNTimes(std::move(subNFA), paramRegex->parameter);
     }
+
+    return nullptr;
 }
 
-void NFACompiler::copyContent(NFA& dest, const NFA& source) {
-    for (const auto& [state, transitions] : source.getAllStates()) {
-        dest.addState(state);
+void NFACompiler::copyContent(const std::unique_ptr<NFA>& dest, const std::shared_ptr<NFA>& source) {
+    for (const auto& [state, transitions] : source->getAllStates()) {
+        dest->addState(state);
         for (const auto& transition : transitions) {
-            dest.addTransition(transition);
+            dest->addTransition(transition);
         }
     }
 }
 
-NFA NFACompiler::makeEmptyNFA() {
-    return {makeNewStateLabel(), makeNewStateLabel()};
+std::unique_ptr<NFA> NFACompiler::makeEmptyNFA() {
+    return std::make_unique<NFA>(makeNewStateLabel(), makeNewStateLabel());
 }
 
-NFA NFACompiler::makeEpsilonNFA() {
-    NFA nfa = makeEmptyNFA();
-    nfa.addTransition({nfa.getStart(), nfa.getAccept()});
+std::unique_ptr<NFA> NFACompiler::makeEpsilonNFA() {
+    auto nfa = makeEmptyNFA();
+    nfa->addTransition({nfa->getStart(), nfa->getAccept()});
     return nfa;
 }
 
-NFA NFACompiler::makeAtomicNFA(const std::string& label) {
-    NFA nfa = makeEmptyNFA();
-    nfa.addTransition({nfa.getStart(), nfa.getAccept(), label});
+std::unique_ptr<NFA> NFACompiler::makeAtomicNFA(const std::string& label) {
+    auto nfa = makeEmptyNFA();
+    nfa->addTransition({nfa->getStart(), nfa->getAccept(), label});
     return nfa;
 }
 
-NFA NFACompiler::wrapNFA(const NFA& toWrap) {
+std::unique_ptr<NFA> NFACompiler::wrapNFA(const std::shared_ptr<NFA>& toWrap) {
     // construct (start -> (nfa) -> accept)
-    NFA nfa = makeEmptyNFA();
+    auto nfa = makeEmptyNFA();
     copyContent(nfa, toWrap);
-    nfa.addTransition({nfa.getStart(), toWrap.getStart()});
-    nfa.addTransition({toWrap.getAccept(), nfa.getAccept()});
+    nfa->addTransition({nfa->getStart(), toWrap->getStart()});
+    nfa->addTransition({toWrap->getAccept(), nfa->getAccept()});
 
     return nfa;
 }
 
-NFA NFACompiler::concatenate(const NFA& first, const NFA& second) {
-    // construct ((first) -> (second))
-    NFA nfa{first};
+std::unique_ptr<NFA> NFACompiler::concatenate(const std::shared_ptr<NFA>& first, const std::shared_ptr<NFA>& second) {
+    auto nfa = std::make_unique<NFA>(*first);
     copyContent(nfa, second);
-    nfa.setStart(first.getStart());
-    nfa.setAccept(second.getAccept());
-    nfa.addTransition({first.getAccept(), second.getStart()});
+    nfa->setStart(first->getStart());
+    nfa->setAccept(second->getAccept());
+    nfa->addTransition({first->getAccept(), second->getStart()});
 
     return nfa;
 }
 
-NFA NFACompiler::repeat(const NFA& toRepeat) {
+std::unique_ptr<NFA> NFACompiler::repeat(const std::shared_ptr<NFA>& toRepeat) {
     // construct NFA that repeats toRepeat at least once
-    NFA nfa = repeatAtLeastOnce(toRepeat);
+    auto nfa = repeatAtLeastOnce(toRepeat);
 
     // add a direct transition from start to accept to ignore the repetition
-    nfa.addTransition({nfa.getStart(), nfa.getAccept()});
+    nfa->addTransition({nfa->getStart(), nfa->getAccept()});
     return nfa;
 }
 
-NFA NFACompiler::repeatAtLeastOnce(const NFA& toRepeat) {
+std::unique_ptr<NFA> NFACompiler::repeatAtLeastOnce(const std::shared_ptr<NFA>& toRepeat) {
     // construct (start -> (toRepeat) -> accept)
-    NFA nfa = wrapNFA(toRepeat);
+    auto nfa = wrapNFA(toRepeat);
 
     // loop back from toRepeat.accept to start for repetition
-    nfa.addTransition({toRepeat.getAccept(), nfa.getStart()});
+    nfa->addTransition({toRepeat->getAccept(), nfa->getStart()});
 
     return nfa;
 }
 
-NFA NFACompiler::alternative(const NFA& first, const NFA& second) {
+std::unique_ptr<NFA> NFACompiler::alternative(const std::shared_ptr<NFA>& first, const std::shared_ptr<NFA>& second) {
     // construct (start  (first) (second) accept)
-    NFA nfa = makeEmptyNFA();
+    auto nfa = makeEmptyNFA();
     copyContent(nfa, first);
     copyContent(nfa, second);
 
     // connect (start -> (first.start ... first.accept) -> accept)
-    nfa.addTransition({nfa.getStart(), first.getStart()});
-    nfa.addTransition({first.getAccept(), nfa.getAccept()});
+    nfa->addTransition({nfa->getStart(), first->getStart()});
+    nfa->addTransition({first->getAccept(), nfa->getAccept()});
 
     // connect (start -> (second.start ... second.accept) -> accept)
-    nfa.addTransition({nfa.getStart(), second.getStart()});
-    nfa.addTransition({second.getAccept(), nfa.getAccept()});
+    nfa->addTransition({nfa->getStart(), second->getStart()});
+    nfa->addTransition({second->getAccept(), nfa->getAccept()});
 
     return nfa;
 }
 
-NFA NFACompiler::optional(const NFA& optional) {
+std::unique_ptr<NFA> NFACompiler::optional(const std::shared_ptr<NFA>& optional) {
     // construct (start -> (optional) -> accept)
-    NFA nfa = wrapNFA(optional);
+    auto nfa = wrapNFA(optional);
 
     // add a direct transition from start to accept for ignoring
-    nfa.addTransition({nfa.getStart(), nfa.getAccept()});
+    nfa->addTransition({nfa->getStart(), nfa->getAccept()});
 
     return nfa;
 }
 
-NFA NFACompiler::repeatNTimes(const NFA& toRepeat, int n) {
-    NFA nfa = makeEmptyNFA();
+std::unique_ptr<NFA>  NFACompiler::repeatNTimes(const std::shared_ptr<NFA>& toRepeat, int n) {
+    auto nfa = makeEmptyNFA();
 
-    State previous = nfa.getStart();
+    State previous = nfa->getStart();
     for (int i = 0; i < n; i++) {
         // previous -> temp.start -> (toRepeat) -> temp.accept
-        NFA temp = wrapNFA(toRepeat);
-        copyContent(nfa, temp);
-        nfa.addTransition({previous, temp.getStart()});
+        auto temp = wrapNFA(toRepeat);
+        copyContent(nfa, std::move(temp));
+        nfa->addTransition({previous, temp->getStart()});
 
-        previous = temp.getAccept();
+        previous = temp->getAccept();
     }
     // connect final previous to accept state
-    nfa.addTransition({previous, nfa.getAccept()});
+    nfa->addTransition({previous, nfa->getAccept()});
 
     return nfa;
 }

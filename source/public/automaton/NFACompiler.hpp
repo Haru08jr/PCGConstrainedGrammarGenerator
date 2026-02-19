@@ -11,39 +11,43 @@
 
 class NFACompiler {
 public:
-    void fromRegex(const std::shared_ptr<RegularExpression>& regex, NFA& outNFA);
-    //NFA fromRegex(const RegularExpression& regex);
+    explicit NFACompiler(const std::shared_ptr<RegularExpression>& regex);
+    [[nodiscard]] std::shared_ptr<NFA> getConstructedNFA() const;
 
 private:
     int nextStateLabel = 0;
 
+    const std::shared_ptr<NFA> constructedNFA;
+    /** Recursively construct a NFA from a regex. */
+    std::unique_ptr<NFA> fromRegex(const std::shared_ptr<RegularExpression>& regex);
+
     /** Get a new unique state label. */
     State makeNewStateLabel() { return nextStateLabel++; }
     /** Add a copy of all states and transitions in source into dest. */
-    static void copyContent(NFA& dest, const NFA& source);
+    static void copyContent(const std::unique_ptr<NFA>& dest, const std::shared_ptr<NFA>& source);
 
     // NFA construction functions
     /** Create a new NFA with only a start and accept state and no transitions. */
-    NFA makeEmptyNFA();
+    std::unique_ptr<NFA> makeEmptyNFA();
     /** Create a new NFA with an epsilon edge from start state to accept state. */
-    NFA makeEpsilonNFA();
+    std::unique_ptr<NFA> makeEpsilonNFA();
     /** Create a new NFA with a labled edge from start state to accept state. */
-    NFA makeAtomicNFA(const std::string& label);
+    std::unique_ptr<NFA> makeAtomicNFA(const std::string& label);
 
     /** Create a new NFA of the structure (start -> (nfa) -> accept). */
-    NFA wrapNFA(const NFA& toWrap);
+    std::unique_ptr<NFA> wrapNFA(const std::shared_ptr<NFA>& toWrap);
 
     /** Create a new NFA that represents the regex [first,second] */
-    static NFA concatenate(const NFA& first, const NFA& second);
+    static std::unique_ptr<NFA> concatenate(const std::shared_ptr<NFA>& first, const std::shared_ptr<NFA>& second);
     /** Create a new NFA that represents the regex [toRepeat]* */
-    NFA repeat(const NFA& toRepeat);
+    std::unique_ptr<NFA> repeat(const std::shared_ptr<NFA>& toRepeat);
     /** Create a new NFA that represents the regex [toRepeat]+ */
-    NFA repeatAtLeastOnce(const NFA& toRepeat);
+    std::unique_ptr<NFA> repeatAtLeastOnce(const std::shared_ptr<NFA>& toRepeat);
     /** Create a new NFA that represents the regex [first|second] */
-    NFA alternative(const NFA& first, const NFA& second);
+    std::unique_ptr<NFA> alternative(const std::shared_ptr<NFA>& first, const std::shared_ptr<NFA>& second);
     /** Create a new NFA that represents the regex [optional]? */
-    NFA optional(const NFA& optional);
+    std::unique_ptr<NFA> optional(const std::shared_ptr<NFA>& optional);
     /** Create a new NFA that represents the regex [toRepeat]n */
-    NFA repeatNTimes(const NFA& toRepeat, int n);
+    std::unique_ptr<NFA> repeatNTimes(const std::shared_ptr<NFA>& toRepeat, int n);
 
 };
