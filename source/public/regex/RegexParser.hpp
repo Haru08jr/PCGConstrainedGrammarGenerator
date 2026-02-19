@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include <utility>
 
 #include "RegularExpression.hpp"
 
@@ -11,6 +12,12 @@ enum RegexOperators : char{
     Kleene = '*',
     Plus = '+',
     Optional = '?'
+};
+
+struct RegexParsingException : std::exception{
+    std::string errorMessage;
+
+    explicit RegexParsingException(std::string errorMessage) : errorMessage(std::move(errorMessage)){}
 };
 
 /**
@@ -40,15 +47,22 @@ private:
     /** Returns true if c is one of the characters specified in RegexOperators. */
     static bool isOperator(char c);
 
-    // parsing functions
+    /*
+     * Parsing functions: recursively construct a regex syntax tree.
+     * Operators bind in the order Group > Repetition > Concatenation > Alternative, therefore the functions should be called in reverse order.
+     */
 
+    /** Parse a chain of alternative expressions and return the resulting regex tree. */
     std::unique_ptr<RegularExpression> parseAlternative();
+    /** Parse a chain of concatenated expressions and return the resulting regex tree. */
     std::unique_ptr<RegularExpression> parseConcatenation();
+    /** Construct a unary RegularExpression repeating the subexpression. */
     std::unique_ptr<RegularExpression> parseRepetition();
-    std::unique_ptr<RegularExpression> parseValue();
+    /** If a group is present, restart parsing the subexpression. Else parse the subexpression as a literal. */
     std::unique_ptr<RegularExpression> parseGroup();
+
     /** Construct a RegularExpression from the literal coming next in the string. */
     std::unique_ptr<RegularExpression> parseLiteral();
-
+    /** Parse the number coming next in the string. */
     int parseNumber();
 };
