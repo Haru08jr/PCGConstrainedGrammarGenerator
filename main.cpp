@@ -6,7 +6,7 @@
 #include "source/public/regex/RegexParser.hpp"
 
 int main() {
-    const RegexParser parser("[w|c,d,c]*");
+    const RegexParser parser("[w|d]*");
     const auto regex = parser.getParsedRegex();
 
     const NFACompiler compiler(regex);

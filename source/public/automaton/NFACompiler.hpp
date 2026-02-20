@@ -25,6 +25,8 @@ private:
     State makeNewStateLabel() { return nextStateLabel++; }
     /** Add a copy of all states and transitions in source into dest. */
     static void copyContent(const std::unique_ptr<NFA>& dest, const std::unique_ptr<NFA>& source);
+    /** Create a new NFA that is a unique copy of toCopy (= same structure, but no shared states) */
+    std::unique_ptr<NFA> makeUniqueCopy(const std::shared_ptr<NFA>& toCopy);
 
     // NFA construction functions
     /** Create a new NFA with only a start and accept state and no transitions. */
@@ -48,6 +50,6 @@ private:
     /** Create a new NFA that represents the regex [optional]? */
     std::unique_ptr<NFA> optional(const std::unique_ptr<NFA>& optional);
     /** Create a new NFA that represents the regex [toRepeat]n */
-    std::unique_ptr<NFA> repeatNTimes(const std::unique_ptr<NFA>& toRepeat, int n);
+    std::unique_ptr<NFA> repeatNTimes(std::unique_ptr<NFA>& toRepeat, int n);
 
 };

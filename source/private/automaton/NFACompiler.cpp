@@ -69,6 +69,31 @@ void NFACompiler::copyContent(const std::unique_ptr<NFA>& dest, const std::uniqu
     }
 }
 
+std::unique_ptr<NFA> NFACompiler::makeUniqueCopy(const std::shared_ptr<NFA>& toCopy) {
+    auto nfa = std::make_unique<NFA>();
+
+    // Matches state in toCopy to newly created state
+    std::map<State, State> stateLookup;
+
+    for (const auto& [state, transitions] : toCopy->getAllStates()) {
+        State newState = makeNewStateLabel();
+        stateLookup.emplace(state, newState);
+        nfa->addState(newState);
+    }
+    for (const auto& [state, transitions] : toCopy->getAllStates()) {
+        for (const auto& transition : transitions) {
+            if (transition.isEpsilon())
+                nfa->addTransition({stateLookup[transition.getFrom()], stateLookup[transition.getTo()]});
+            else
+                nfa->addTransition({stateLookup[transition.getFrom()], stateLookup[transition.getTo()], transition.getLabel()});
+        }
+    }
+    nfa->setStart(stateLookup[toCopy->getStart()]);
+    nfa->setAccept(stateLookup[toCopy->getAccept()]);
+
+    return nfa;
+}
+
 std::unique_ptr<NFA> NFACompiler::makeEmptyNFA() {
     return std::make_unique<NFA>(makeNewStateLabel(), makeNewStateLabel());
 }
@@ -151,22 +176,17 @@ std::unique_ptr<NFA> NFACompiler::optional(const std::unique_ptr<NFA>& optional)
     return nfa;
 }
 
-std::unique_ptr<NFA>  NFACompiler::repeatNTimes(const std::unique_ptr<NFA>& toRepeat, int n) {
-    // TODO this doesn't work! Need to create separate copies of the repeated nfa
+std::unique_ptr<NFA>  NFACompiler::repeatNTimes(std::unique_ptr<NFA>& toRepeat, int n) {
 
-    auto nfa = makeEmptyNFA();
+    const std::shared_ptr toRepeatShared(std::move(toRepeat));
+    std::unique_ptr<NFA> previous = makeUniqueCopy(toRepeatShared);
 
-    State previous = nfa->getStart();
-    for (int i = 0; i < n; i++) {
-        // previous -> temp.start -> (toRepeat) -> temp.accept
-        auto temp = wrapNFA(toRepeat);
-        copyContent(nfa, temp);
-        nfa->addTransition({previous, temp->getStart()});
-
-        previous = temp->getAccept();
+    for (int i = 1; i < n; i++) {
+        auto temp = makeUniqueCopy(toRepeatShared);
+        previous = concatenate(previous, temp);
     }
-    // connect final previous to accept state
-    nfa->addTransition({previous, nfa->getAccept()});
+    auto nfa = wrapNFA(previous);
+
 
     return nfa;
 }
