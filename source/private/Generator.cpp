@@ -75,6 +75,5 @@ GenerationResult Generator::generate(const std::map<std::string, float>& symbolS
         }
         return a.currentLength > b.currentLength;
     });
-
     return correctResults[0];
 }

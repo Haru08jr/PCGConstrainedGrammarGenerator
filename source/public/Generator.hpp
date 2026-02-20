@@ -38,7 +38,6 @@ struct GenerationResult {
             result += symbol;
             result += ",";
         }
-
         return  result.substr(0, result.length() - 1);
     }
 

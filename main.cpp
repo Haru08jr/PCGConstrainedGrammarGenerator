@@ -10,7 +10,7 @@ int main() {
     const auto regex = parser.getParsedRegex();
 
     const NFACompiler compiler(regex);
-    auto nfa = compiler.getConstructedNFA();
+    const auto nfa = compiler.getConstructedNFA();
 
     std::map<std::string, float> symbolSize;
     symbolSize.emplace("w", 2.f);
