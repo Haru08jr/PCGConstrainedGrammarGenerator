@@ -18,7 +18,7 @@ int main() {
     symbolSize.emplace("d", 1.f);
 
     std::vector<GenerationConstraint> constraints;
-    constraints.emplace_back("d", 3.f);
+    constraints.emplace_back("d", 2.5f);
 
     const auto result = Generator::generate(symbolSize, 7.1f, nfa, constraints);
     std::cout << result.getGeneratedString() << std::flush;

@@ -10,6 +10,7 @@
 struct GenerationConstraint {
     std::string symbol;
     float position;
+    float halfwith;
 
     bool operator<(const GenerationConstraint& other) const {
         return position < other.position;
