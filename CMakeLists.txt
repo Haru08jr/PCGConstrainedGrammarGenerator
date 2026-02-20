@@ -4,8 +4,6 @@ project(PCGGrammarsWithConstraints)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(PCGGrammarsWithConstraints main.cpp
-        source/private/RegexPreprocessor.cpp
-        source/public/RegexPreprocessor.hpp
         source/private/Generator.cpp
         source/public/Generator.hpp
         source/private/utils/StringUtils.cpp
