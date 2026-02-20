@@ -12,8 +12,8 @@ std::shared_ptr<NFA> NFACompiler::getConstructedNFA() const {
 }
 
 std::unique_ptr<NFA> NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
-    if (!regex->isValid())
-        return nullptr;
+    if (!regex || !regex->isValid())
+        throw NFACompilationException("Invalid RegularExpression!");
 
     if (regex->type & Literal) {
         const auto literalRegex = std::static_pointer_cast<LiteralRegex>(regex);

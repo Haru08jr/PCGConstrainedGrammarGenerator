@@ -9,6 +9,12 @@
 #include "NFA.hpp"
 #include "../regex/RegularExpression.hpp"
 
+struct NFACompilationException : std::exception{
+    std::string errorMessage;
+
+    explicit NFACompilationException(std::string errorMessage) : errorMessage(std::move(errorMessage)){}
+};
+
 class NFACompiler {
 public:
     explicit NFACompiler(const std::shared_ptr<RegularExpression>& regex);
