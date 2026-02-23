@@ -3,6 +3,9 @@ project(PCGGrammarsWithConstraints)
 
 set(CMAKE_CXX_STANDARD 20)
 
+include_directories("libraries")
+include_directories("source/public")
+
 add_executable(PCGGrammarsWithConstraints main.cpp
         source/private/Generator.cpp
         source/public/Generator.hpp
@@ -15,4 +18,6 @@ add_executable(PCGGrammarsWithConstraints main.cpp
         source/public/regex/RegularExpression.hpp
         source/private/regex/RegexParser.cpp
         source/public/regex/RegexParser.hpp
+        source/public/utils/GraphUtils.cpp
+        source/public/utils/GraphUtils.hpp
 )

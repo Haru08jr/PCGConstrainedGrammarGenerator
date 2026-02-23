@@ -1,9 +1,13 @@
 ﻿#pragma once
 
 #include <iostream>
-#include "source/public/Generator.hpp"
-#include "source/public/automaton/NFACompiler.hpp"
-#include "source/public/regex/RegexParser.hpp"
+
+#include <graaflib/graph.h>
+#include <Generator.hpp>
+#include <automaton/NFACompiler.hpp>
+#include <regex/RegexParser.hpp>
+
+#include "utils/GraphUtils.hpp"
 
 int main() {
     const RegexParser parser("[w|d]*");
@@ -11,6 +15,9 @@ int main() {
 
     const NFACompiler compiler(regex);
     const auto nfa = compiler.getConstructedNFA();
+
+    const NFAGraph graph(nfa);
+    graph.printGraph();
 
     std::map<std::string, float> symbolSize;
     symbolSize.emplace("w", 2.f);
