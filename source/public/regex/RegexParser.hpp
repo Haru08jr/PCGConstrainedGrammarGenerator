@@ -31,11 +31,14 @@ public:
 
     /** Access the constructed regex tree. */
     [[nodiscard]] std::shared_ptr<RegularExpression> getParsedRegex() const;
+    [[nodiscard]] bool wasParsingSuccessful() const;
+    [[nodiscard]] std::string getErrorMessage() const;
 
 private:
     std::string regexString;
     int parseIndex;
     std::shared_ptr<RegularExpression> parsedRegexTree;
+    std::string errorMessage;
 
     /** If the next character in the string is c, returns true and advances the index. Else returns false. */
     bool consumeSpecifiedChar(char c);

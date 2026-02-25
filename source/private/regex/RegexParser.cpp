@@ -113,22 +113,34 @@ std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
     return parseLiteral();
 }
 
-RegexParser::RegexParser(std::string string): regexString(std::move(string)), parseIndex(0) {
+RegexParser::RegexParser(std::string string) : regexString(std::move(string)), parseIndex(0) {
     // remove spaces in string
     StringUtils::findAndReplaceAll(regexString, " ", "");
 
-    if (regexString.empty())
-        throw RegexParsingException("Empty regex string!");
+    try {
+        if (regexString.empty())
+            throw RegexParsingException("Empty regex string!");
 
-    // start parsing
-    parsedRegexTree = parseAlternative();
+        // start parsing
+        parsedRegexTree = parseAlternative();
 
-    // if parsing returns before reaching the end of the string, the regex string must be invalid
-    if (parseIndex < regexString.size()) {
-        throw RegexParsingException("Invalid regex string!");
+        // if parsing returns before reaching the end of the string, the regex string must be invalid
+        if (parseIndex < regexString.size()) {
+            throw RegexParsingException("Invalid regex string!");
+        }
+    }catch(RegexParsingException& e) {
+        errorMessage = e.errorMessage;
     }
 }
 
 std::shared_ptr<RegularExpression> RegexParser::getParsedRegex() const {
     return parsedRegexTree;
+}
+
+bool RegexParser::wasParsingSuccessful() const {
+    return parsedRegexTree != nullptr && parsedRegexTree->isValid();
+}
+
+std::string RegexParser::getErrorMessage() const {
+    return errorMessage;
 }

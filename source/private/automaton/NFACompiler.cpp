@@ -4,11 +4,24 @@
 
 #include "../../public/automaton/NFACompiler.hpp"
 
-NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) :constructedNFA(fromRegex(regex)){
+NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex){
+    try {
+        constructedNFA = fromRegex(regex);
+    }catch (NFACompilationException& e) {
+        errorMessage = e.errorMessage;
+    }
 }
 
 std::shared_ptr<NFA> NFACompiler::getConstructedNFA() const {
     return constructedNFA;
+}
+
+bool NFACompiler::wasConstructionSuccessful() const {
+    return constructedNFA != nullptr;
+}
+
+std::string NFACompiler::getErrorMessage() const {
+    return errorMessage;
 }
 
 std::unique_ptr<NFA> NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 #include "NFA.hpp"
@@ -18,12 +19,17 @@ struct NFACompilationException : std::exception{
 class NFACompiler {
 public:
     explicit NFACompiler(const std::shared_ptr<RegularExpression>& regex);
+
     [[nodiscard]] std::shared_ptr<NFA> getConstructedNFA() const;
+    [[nodiscard]] bool wasConstructionSuccessful() const;
+    [[nodiscard]] std::string getErrorMessage() const;
 
 private:
     int nextStateLabel = 0;
 
-    const std::shared_ptr<NFA> constructedNFA;
+    std::shared_ptr<NFA> constructedNFA;
+    std::string errorMessage;
+
     /** Recursively construct a NFA from a regex. */
     std::unique_ptr<NFA> fromRegex(const std::shared_ptr<RegularExpression>& regex);
 
