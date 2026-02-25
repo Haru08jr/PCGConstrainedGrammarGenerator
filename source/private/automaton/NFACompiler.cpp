@@ -83,7 +83,7 @@ void NFACompiler::copyContent(NFA& dest, const NFA& source) {
 }
 
 NFA NFACompiler::makeUniqueCopy(const NFA& toCopy) {
-    auto nfa{};
+    auto nfa = makeEmptyNFA();
 
     // Matches state in toCopy to newly created state
     std::map<State, State> stateLookup;
@@ -91,18 +91,18 @@ NFA NFACompiler::makeUniqueCopy(const NFA& toCopy) {
     for (const auto& [state, transitions] : toCopy.getAllStates()) {
         State newState = makeNewStateLabel();
         stateLookup.emplace(state, newState);
-        nfa->addState(newState);
+        nfa.addState(newState);
     }
     for (const auto& [state, transitions] : toCopy.getAllStates()) {
         for (const auto& transition : transitions) {
             if (transition.isEpsilon())
-                nfa->addTransition({stateLookup[transition.getFrom()], stateLookup[transition.getTo()]});
+                nfa.addTransition({stateLookup[transition.getFrom()], stateLookup[transition.getTo()]});
             else
-                nfa->addTransition({stateLookup[transition.getFrom()], stateLookup[transition.getTo()], transition.getLabel()});
+                nfa.addTransition({stateLookup[transition.getFrom()], stateLookup[transition.getTo()], transition.getLabel()});
         }
     }
-    nfa->setStart(stateLookup[toCopy.getStart()]);
-    nfa->setAccept(stateLookup[toCopy.getAccept()]);
+    nfa.setStart(stateLookup[toCopy.getStart()]);
+    nfa.setAccept(stateLookup[toCopy.getAccept()]);
 
     return nfa;
 }
