@@ -3,20 +3,20 @@
 #include <algorithm>
 #include <queue>
 
-GenerationResult Generator::generate(const std::map<std::string, float>& symbolSizes, float maxLength, const std::shared_ptr<NFA>& nfa, std::vector<GenerationConstraint> constraints) {
+GenerationResult Generator::generate(const std::map<std::string, float>& symbolSizes, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) {
     std::vector<GenerationResult> correctResults;
 
     std::sort(constraints.begin(), constraints.end());
 
     std::priority_queue<GenerationResult> queue;
-    queue.emplace(nfa->getStart());
+    queue.emplace(nfa.getStart());
 
     while (!queue.empty()) {
         const auto currentResult = queue.top();
         queue.pop();
 
         // for each edge going out of the current state
-        for (const auto& transition: nfa->getAllTransitions(currentResult.currentState)) {
+        for (const auto& transition: nfa.getAllTransitions(currentResult.currentState)) {
             GenerationResult newResult = currentResult;
             newResult.currentState = transition.getTo();
 
@@ -49,7 +49,7 @@ GenerationResult Generator::generate(const std::map<std::string, float>& symbolS
             }
 
             // if at a accepting state & all constraints are met
-            if (nfa->getAccept() == newResult.currentState && newResult.constraintsMet == constraints.size()) {
+            if (nfa.getAccept() == newResult.currentState && newResult.constraintsMet == constraints.size()) {
                 if (newResult.currentLength == maxLength) {
                     // found optimal result, return
                     return newResult;

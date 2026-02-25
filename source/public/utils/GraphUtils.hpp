@@ -12,7 +12,7 @@ struct GraphVertex {
 
 class NFAGraph {
 public:
-    explicit NFAGraph(const std::shared_ptr<NFA>& nfa);
+    explicit NFAGraph(const NFA& nfa);
 
     void printGraph(const std::string& filename = "graph") const;
 

@@ -55,5 +55,5 @@ struct GenerationResult {
 
 class Generator {
 public:
-    static GenerationResult generate(const std::map<std::string, float>& symbolSizes, float maxLength, const std::shared_ptr<NFA>& nfa, std::vector<GenerationConstraint> constraints);
+    static GenerationResult generate(const std::map<std::string, float>& symbolSizes, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
 };
