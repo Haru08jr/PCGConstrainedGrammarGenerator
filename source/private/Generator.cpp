@@ -27,8 +27,8 @@ GenerationResult Generator::generate(const std::map<std::string, float>& symbolS
 
                 // if at the position of the next relevant constraint
                 if (newResult.constraintsMet < constraints.size() &&
-                    newResult.currentLength <= constraints[newResult.constraintsMet].position /* - constraints[newResult.constraintsMet].halfwith*/ &&
-                    constraints[newResult.constraintsMet].position /*+ constraints[newResult.constraintsMet].halfwith*/ <= newResult.currentLength + symbolSizes.at(symbol)) {
+                    newResult.currentLength <= constraints[newResult.constraintsMet].position &&
+                    constraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSizes.at(symbol)) {
 
                     // if placing the correct character, mark constraint as solved
                     if (constraints[newResult.constraintsMet].symbol == symbol) {
