@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <queue>
 
-GenerationResult Generator::generate(const std::map<std::string, float>& symbolSizes, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) {
+GenerationResult Generator::generate(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) {
     std::vector<GenerationResult> correctResults;
 
+    // sort the constraints along the generation shape
     std::sort(constraints.begin(), constraints.end());
 
     std::priority_queue<GenerationResult> queue;
@@ -24,11 +25,17 @@ GenerationResult Generator::generate(const std::map<std::string, float>& symbolS
                 ++newResult.epsilons;
             else {
                 auto symbol = transition.getLabel();
+                
+                // abort in case the NFA contains an unknown symbol
+                if (!modules.contains(symbol))
+                {
+                    return GenerationResult(-1);
+                }
 
                 // if at the position of the next relevant constraint
                 if (newResult.constraintsMet < constraints.size() &&
                     newResult.currentLength <= constraints[newResult.constraintsMet].position &&
-                    constraints[newResult.constraintsMet].position <= newResult.currentLength + symbolSizes.at(symbol)) {
+                    constraints[newResult.constraintsMet].position <= newResult.currentLength + modules.at(symbol).size) {
 
                     // if placing the correct character, mark constraint as solved
                     if (constraints[newResult.constraintsMet].symbol == symbol) {
@@ -38,9 +45,14 @@ GenerationResult Generator::generate(const std::map<std::string, float>& symbolS
                         continue;
                     }
                 }
+                else if (modules.at(symbol).spawnOnlyWithConstraint)
+                {
+                    // if the symbol should only be placed with a constraint, discard this result
+                    continue;
+                }
 
                 newResult.currentSymbols.push_back(symbol);
-                newResult.currentLength += symbolSizes.at(symbol);
+                newResult.currentLength += modules.at(symbol).size;
             }
 
             // discard result if max length is exceeded

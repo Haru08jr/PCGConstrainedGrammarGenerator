@@ -17,9 +17,11 @@ struct GenerationConstraint {
     }
 };
 
-struct SizeRange {
-    float minSize;
-    float maxSize;
+struct GrammarModule
+{    
+    std::string symbol;
+    float size;
+    bool spawnOnlyWithConstraint = false;
 };
 
 struct GenerationResult {
@@ -55,5 +57,5 @@ struct GenerationResult {
 
 class Generator {
 public:
-    static GenerationResult generate(const std::map<std::string, float>& symbolSizes, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
+    static GenerationResult generate(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
 };

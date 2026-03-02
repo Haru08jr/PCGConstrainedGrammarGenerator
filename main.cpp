@@ -19,15 +19,15 @@ int main() {
     const NFAGraph graph(nfa);
     graph.printGraph();
 
-    std::map<std::string, float> symbolSize;
-    symbolSize.emplace("w", 2.f);
-    symbolSize.emplace("c", 0.5f);
-    symbolSize.emplace("d", 1.f);
+    std::map<std::string, GrammarModule> modules;
+    modules.emplace("w", GrammarModule{"w", 2.f});
+    modules.emplace("c", GrammarModule{"c", 0.5});
+    modules.emplace("d", GrammarModule{"d", 1.f});
 
     std::vector<GenerationConstraint> constraints;
     constraints.emplace_back("d", 2.5f);
 
-    const auto result = Generator::generate(symbolSize, 7.1f, nfa, constraints);
+    const auto result = Generator::generate(modules, 7.1f, nfa, constraints);
     std::cout << result.getGeneratedString() << std::flush;
 
     return 0;
