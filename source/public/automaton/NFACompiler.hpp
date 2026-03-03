@@ -4,16 +4,20 @@
 
 #pragma once
 
-#include <optional>
 #include <string>
 
 #include "NFA.hpp"
 #include "../regex/RegularExpression.hpp"
 
-struct NFACompilationException : std::exception{
-    std::string errorMessage;
+enum NFAErrorType {
+    NoError,
+    EmptyRegex,
+    InvalidRegex
+};
 
-    explicit NFACompilationException(std::string errorMessage) : errorMessage(std::move(errorMessage)){}
+struct NFACompilationException : std::exception{
+    NFAErrorType errorType;
+    explicit NFACompilationException(const NFAErrorType errorType) : errorType(errorType){}
 };
 
 class NFACompiler {
@@ -22,13 +26,13 @@ public:
 
     [[nodiscard]] const NFA& getConstructedNFA() const;
     [[nodiscard]] bool wasConstructionSuccessful() const;
-    [[nodiscard]] std::string getErrorMessage() const;
+    [[nodiscard]] NFAErrorType getErrorInfo() const;
 
 private:
     int nextStateLabel = 0;
 
     NFA constructedNFA;
-    std::string errorMessage;
+    NFAErrorType constructionError;
 
     /** Recursively construct a NFA from a regex. */
     NFA fromRegex(const std::shared_ptr<RegularExpression>& regex);

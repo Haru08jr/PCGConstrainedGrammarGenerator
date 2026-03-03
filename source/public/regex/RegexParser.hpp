@@ -14,10 +14,17 @@ enum RegexOperators : char{
     Optional = '?'
 };
 
-struct RegexParsingException : std::exception{
-    std::string errorMessage;
+enum RegexErrorType {
+    NoError,
+    EmptyString,
+    MissingLiteral,
+    InvalidString
+};
 
-    explicit RegexParsingException(std::string errorMessage) : errorMessage(std::move(errorMessage)){}
+struct RegexParsingException : std::exception{
+    RegexErrorType errorType;
+
+    explicit RegexParsingException(const RegexErrorType errorType) : errorType(errorType) {}
 };
 
 /**
@@ -31,14 +38,16 @@ public:
 
     /** Access the constructed regex tree. */
     [[nodiscard]] std::shared_ptr<RegularExpression> getParsedRegex() const;
+
     [[nodiscard]] bool wasParsingSuccessful() const;
-    [[nodiscard]] std::string getErrorMessage() const;
+    [[nodiscard]] RegexErrorType getErrorInfo() const;
 
 private:
     std::string regexString;
     int parseIndex;
     std::shared_ptr<RegularExpression> parsedRegexTree;
-    std::string errorMessage;
+
+    RegexErrorType parsingError;
 
     /** If the next character in the string is c, returns true and advances the index. Else returns false. */
     bool consumeSpecifiedChar(char c);

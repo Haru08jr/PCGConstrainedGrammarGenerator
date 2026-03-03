@@ -1,14 +1,11 @@
-﻿//
-// Created by jreut on 10.02.2026.
-//
-
+﻿
 #include "../../public/automaton/NFACompiler.hpp"
 
 NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex){
     try {
         constructedNFA = fromRegex(regex);
     }catch (NFACompilationException& e) {
-        errorMessage = e.errorMessage;
+        constructionError = e.errorType;
     }
 }
 
@@ -17,16 +14,16 @@ const NFA& NFACompiler::getConstructedNFA() const {
 }
 
 bool NFACompiler::wasConstructionSuccessful() const {
-    return errorMessage.empty();
+    return constructionError == NoError;
 }
 
-std::string NFACompiler::getErrorMessage() const {
-    return errorMessage;
+NFAErrorType NFACompiler::getErrorInfo() const {
+    return constructionError;
 }
 
 NFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
-    if (!regex || !regex->isValid())
-        throw NFACompilationException("Invalid RegularExpression!");
+    if (!regex)
+        throw NFACompilationException(EmptyRegex);
 
     if (regex->type & Literal) {
         const auto literalRegex = std::static_pointer_cast<LiteralRegex>(regex);
@@ -68,7 +65,7 @@ NFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
         return repeatNTimes(subNFA, paramRegex->parameter);
     }
     
-    throw NFACompilationException("NFA could not be constructed!");
+    throw NFACompilationException(InvalidRegex);
 }
 
 void NFACompiler::copyContent(NFA& dest, const NFA& source) {

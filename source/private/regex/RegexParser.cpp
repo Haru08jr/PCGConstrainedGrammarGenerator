@@ -49,7 +49,7 @@ std::unique_ptr<RegularExpression> RegexParser::parseLiteral() {
     }
 
     if (literalString.empty())
-        throw RegexParsingException("Invalid regex string!");
+        throw RegexParsingException(MissingLiteral);
 
     return std::make_unique<LiteralRegex>(literalString);
 }
@@ -101,7 +101,7 @@ std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
 
         // error if group end is missing
         if (!consumeSpecifiedChar(EndGroup))
-            throw RegexParsingException("Invalid regex string!");
+            throw RegexParsingException(InvalidString);
 
         // if number after group: repeat group that many times
         if (isdigit(peekNextChar()))
@@ -113,23 +113,23 @@ std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
     return parseLiteral();
 }
 
-RegexParser::RegexParser(std::string string) : regexString(std::move(string)), parseIndex(0) {
+RegexParser::RegexParser(std::string string) : regexString(std::move(string)), parseIndex(0), parsingError(NoError) {
     // remove spaces in string
     StringUtils::findAndReplaceAll(regexString, " ", "");
 
     try {
         if (regexString.empty())
-            throw RegexParsingException("Empty regex string!");
+            throw RegexParsingException(EmptyString);
 
         // start parsing
         parsedRegexTree = parseAlternative();
 
         // if parsing returns before reaching the end of the string, the regex string must be invalid
         if (parseIndex < regexString.size()) {
-            throw RegexParsingException("Invalid regex string!");
+            throw RegexParsingException(InvalidString);
         }
     }catch(RegexParsingException& e) {
-        errorMessage = e.errorMessage;
+        parsingError = e.errorType;
     }
 }
 
@@ -138,9 +138,9 @@ std::shared_ptr<RegularExpression> RegexParser::getParsedRegex() const {
 }
 
 bool RegexParser::wasParsingSuccessful() const {
-    return parsedRegexTree != nullptr && parsedRegexTree->isValid();
+    return parsingError == NoError;
 }
 
-std::string RegexParser::getErrorMessage() const {
-    return errorMessage;
+RegexErrorType RegexParser::getErrorInfo() const {
+    return parsingError;
 }

@@ -10,11 +10,11 @@
 #include "utils/GraphUtils.hpp"
 
 int main() {
-    const RegexParser parser("[w|d]*");
+    const RegexParser parser("d*+");
     const auto regex = parser.getParsedRegex();
 
     const NFACompiler compiler(regex);
-    const auto nfa = compiler.getConstructedNFA();
+    const auto& nfa = compiler.getConstructedNFA();
 
     const NFAGraph graph(nfa);
     graph.printGraph();
