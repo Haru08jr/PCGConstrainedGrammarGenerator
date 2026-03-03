@@ -14,7 +14,7 @@ const NFA& NFACompiler::getConstructedNFA() const {
 }
 
 bool NFACompiler::wasConstructionSuccessful() const {
-    return constructionError == NoError;
+    return constructionError == NFAErrorType::NoError;
 }
 
 NFAErrorType NFACompiler::getErrorInfo() const {
@@ -23,7 +23,7 @@ NFAErrorType NFACompiler::getErrorInfo() const {
 
 NFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
     if (!regex)
-        throw NFACompilationException(EmptyRegex);
+        throw NFACompilationException(NFAErrorType::EmptyRegex);
 
     if (regex->type & Literal) {
         const auto literalRegex = std::static_pointer_cast<LiteralRegex>(regex);
@@ -65,7 +65,7 @@ NFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
         return repeatNTimes(subNFA, paramRegex->parameter);
     }
     
-    throw NFACompilationException(InvalidRegex);
+    throw NFACompilationException(NFAErrorType::InvalidRegex);
 }
 
 void NFACompiler::copyContent(NFA& dest, const NFA& source) {

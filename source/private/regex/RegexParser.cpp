@@ -49,7 +49,7 @@ std::unique_ptr<RegularExpression> RegexParser::parseLiteral() {
     }
 
     if (literalString.empty())
-        throw RegexParsingException(MissingLiteral);
+        throw RegexParsingException(RegexErrorType::MissingLiteral);
 
     return std::make_unique<LiteralRegex>(literalString);
 }
@@ -101,7 +101,7 @@ std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
 
         // error if group end is missing
         if (!consumeSpecifiedChar(EndGroup))
-            throw RegexParsingException(InvalidString);
+            throw RegexParsingException(RegexErrorType::InvalidString);
 
         // if number after group: repeat group that many times
         if (isdigit(peekNextChar()))
@@ -113,20 +113,20 @@ std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
     return parseLiteral();
 }
 
-RegexParser::RegexParser(std::string string) : regexString(std::move(string)), parseIndex(0), parsingError(NoError) {
+RegexParser::RegexParser(std::string string) : regexString(std::move(string)), parseIndex(0), parsingError(RegexErrorType::NoError) {
     // remove spaces in string
     StringUtils::findAndReplaceAll(regexString, " ", "");
 
     try {
         if (regexString.empty())
-            throw RegexParsingException(EmptyString);
+            throw RegexParsingException(RegexErrorType::EmptyString);
 
         // start parsing
         parsedRegexTree = parseAlternative();
 
         // if parsing returns before reaching the end of the string, the regex string must be invalid
         if (parseIndex < regexString.size()) {
-            throw RegexParsingException(InvalidString);
+            throw RegexParsingException(RegexErrorType::InvalidString);
         }
     }catch(RegexParsingException& e) {
         parsingError = e.errorType;
@@ -138,7 +138,7 @@ std::shared_ptr<RegularExpression> RegexParser::getParsedRegex() const {
 }
 
 bool RegexParser::wasParsingSuccessful() const {
-    return parsingError == NoError;
+    return parsingError == RegexErrorType::NoError;
 }
 
 RegexErrorType RegexParser::getErrorInfo() const {

@@ -14,7 +14,7 @@ enum RegexOperators : char{
     Optional = '?'
 };
 
-enum RegexErrorType {
+enum class RegexErrorType {
     NoError,
     EmptyString,
     MissingLiteral,

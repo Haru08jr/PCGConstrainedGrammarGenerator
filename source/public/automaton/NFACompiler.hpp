@@ -9,7 +9,7 @@
 #include "NFA.hpp"
 #include "../regex/RegularExpression.hpp"
 
-enum NFAErrorType {
+enum class NFAErrorType {
     NoError,
     EmptyRegex,
     InvalidRegex
