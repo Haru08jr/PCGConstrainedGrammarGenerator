@@ -5,6 +5,7 @@
 
 GenerationResult Generator::generate(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) {
     std::vector<GenerationResult> correctResults;
+    const float smallestModuleSize = getSmallestModuleSize(modules);
 
     // sort the constraints along the generation shape
     std::sort(constraints.begin(), constraints.end());
@@ -62,8 +63,8 @@ GenerationResult Generator::generate(const std::map<std::string, GrammarModule>&
 
             // if at a accepting state & all constraints are met
             if (nfa.getAccept() == newResult.currentState && newResult.constraintsMet == constraints.size()) {
-                if (newResult.currentLength == maxLength) {
-                    // found optimal result, return
+                // if you can't add any more symbols without exceeding the maximum length: found optimal result, return
+                if (newResult.currentLength > maxLength - smallestModuleSize) {
                     return newResult;
                 }
                 // save result as correct
@@ -88,4 +89,13 @@ GenerationResult Generator::generate(const std::map<std::string, GrammarModule>&
         return a.currentLength > b.currentLength;
     });
     return correctResults[0];
+}
+
+float Generator::getSmallestModuleSize(const std::map<std::string, GrammarModule>& modules) {
+    float smallest = std::numeric_limits<float>::infinity();
+    for (const auto& [_, module]: modules) {
+        if (smallest > module.size)
+            smallest = module.size;
+    }
+    return smallest;
 }

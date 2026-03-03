@@ -58,4 +58,6 @@ struct GenerationResult {
 class Generator {
 public:
     static GenerationResult generate(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
+
+    static float getSmallestModuleSize(const std::map<std::string, GrammarModule>& modules);
 };
