@@ -1,9 +1,7 @@
 ﻿#pragma once
-#include <map>
-#include <memory>
-#include <utility>
-#include <vector>
 
+#include <map>
+#include <vector>
 #include "automaton/Edge.hpp"
 #include "automaton/NFA.hpp"
 
@@ -53,6 +51,12 @@ struct GenerationResult {
     [[nodiscard]] bool isValid() const {
         return currentState != -1;
     }
+};
+
+enum class GenerationErrorType {
+    NoError,
+    UnknownLiteral,
+    ConstraintsNotSatisfiable
 };
 
 class Generator {
