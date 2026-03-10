@@ -68,11 +68,18 @@ struct GenerationException : std::exception {
 
 class Generator {
 public:
+    Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
+    
+    const GenerationResult& getGenerationResult() const;
+    bool wasGenerationSuccessful() const;
+    GenerationErrorType getErrorInfo() const;
+    
+private:
+    GenerationResult result;
+    GenerationErrorType errorType;
+    
     static GenerationResult generate(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
 
     static void applyTransitionAndAddToQueue(std::priority_queue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition, const std::map<std::string, GrammarModule>& modules, std::vector<GenerationConstraint>
                                              constraints);
-
-    static float getSmallestModuleSize(const std::map<std::string, GrammarModule>& modules);
-    static float getSmallestPlaceableModuleSize(const std::map<std::string, GrammarModule>& modules, State state, const NFA& nfa);
 };

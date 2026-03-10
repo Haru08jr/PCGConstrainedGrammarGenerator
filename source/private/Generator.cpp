@@ -3,6 +3,31 @@
 #include <algorithm>
 #include <queue>
 
+Generator::Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) 
+    : result(-1), errorType(GenerationErrorType::NoError)
+{
+    try {
+        result = generate(modules, maxLength, nfa, constraints);
+    } catch (const GenerationException& e) {
+        errorType = e.errorType;
+    }
+}
+
+const GenerationResult& Generator::getGenerationResult() const
+{
+    return result;
+}
+
+bool Generator::wasGenerationSuccessful() const
+{
+    return errorType == GenerationErrorType::NoError;
+}
+
+GenerationErrorType Generator::getErrorInfo() const
+{
+    return errorType;
+}
+
 GenerationResult Generator::generate(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) {
     // sort the constraints along the generation shape
     std::sort(constraints.begin(), constraints.end());
@@ -80,25 +105,4 @@ void Generator::applyTransitionAndAddToQueue(std::priority_queue<GenerationResul
     }
 
     queue.push(newResult);
-}
-
-float Generator::getSmallestModuleSize(const std::map<std::string, GrammarModule>& modules) {
-    float smallest = std::numeric_limits<float>::infinity();
-    for (const auto& [_, module]: modules) {
-        if (smallest > module.size)
-            smallest = module.size;
-    }
-    return smallest;
-}
-
-float Generator::getSmallestPlaceableModuleSize(const std::map<std::string, GrammarModule>& modules, State state, const NFA& nfa) {
-    float smallest = std::numeric_limits<float>::infinity();
-    for (const auto& edge: nfa.getAllTransitions(state)) {
-        if (!edge.isEpsilon()) {
-            if (modules.contains(edge.getLabel()) && smallest > modules.at(edge.getLabel()).size) {
-                smallest = modules.at(edge.getLabel()).size;
-            }
-        }
-    }
-    return smallest;
 }
