@@ -10,7 +10,7 @@
 #include "utils/GraphUtils.hpp"
 
 int main() {
-    const RegexParser parser("[w|c,d,c]*");
+    const RegexParser parser("[c|d]*");
     const auto regex = parser.getParsedRegex();
 
     const NFACompiler compiler(regex);
@@ -25,9 +25,9 @@ int main() {
     modules.emplace("d", GrammarModule{"d", 1.f});
 
     std::vector<GenerationConstraint> constraints;
-    constraints.emplace_back("d", 3.f);
+    constraints.emplace_back("d", 2.f);
 
-    const auto result = Generator::generate(modules, 7.1f, nfa, constraints);
+    const auto result = Generator::generate(modules, 2.6f, nfa, constraints);
     std::cout << result.getGeneratedString() << std::flush;
 
     return 0;

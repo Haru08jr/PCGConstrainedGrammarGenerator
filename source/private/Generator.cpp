@@ -11,11 +11,11 @@ GenerationResult Generator::generate(const std::map<std::string, GrammarModule>&
     std::priority_queue<GenerationResult> queue;
     // Fill the queue with all outgoing transitions of the start state
     const GenerationResult start(nfa.getStart());
-    for (const auto& transition : nfa.getAllTransitions(nfa.getStart())) {
+    for (const auto& transition: nfa.getAllTransitions(nfa.getStart())) {
         applyTransitionAndAddToQueue(queue, start, transition, modules, constraints);
     }
 
-    // saves the most optimal (longest) correct result
+    // saves the most optimal correct result
     GenerationResult bestResult(-1);
 
     while (!queue.empty()) {
@@ -32,7 +32,7 @@ GenerationResult Generator::generate(const std::map<std::string, GrammarModule>&
             if (currentResult.currentLength > bestResult.currentLength) {
                 bestResult = currentResult;
             }
-        }else {
+        } else {
             for (const auto& transition: nfa.getAllTransitions(currentResult.currentState)) {
                 applyTransitionAndAddToQueue(queue, currentResult, transition, modules, constraints);
             }
@@ -45,14 +45,14 @@ GenerationResult Generator::generate(const std::map<std::string, GrammarModule>&
     return bestResult;
 }
 
-void Generator::applyTransitionAndAddToQueue(std::priority_queue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition, const std::map<std::string, GrammarModule>& modules, std::vector<GenerationConstraint> constraints) {
+void Generator::applyTransitionAndAddToQueue(std::priority_queue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition,
+                                             const std::map<std::string, GrammarModule>& modules, std::vector<GenerationConstraint> constraints) {
     GenerationResult newResult = previousResult;
     newResult.currentState = transition.getTo();
 
     if (transition.isEpsilon()) {
         ++newResult.epsilons;
-    }
-    else {
+    } else {
         const auto symbol = transition.getLabel();
 
         // abort in case the NFA contains an unknown symbol
@@ -63,7 +63,6 @@ void Generator::applyTransitionAndAddToQueue(std::priority_queue<GenerationResul
         if (newResult.constraintsMet < constraints.size() &&
             newResult.currentLength <= constraints[newResult.constraintsMet].position &&
             constraints[newResult.constraintsMet].position <= newResult.currentLength + modules.at(symbol).size) {
-
             // if placing the correct character, mark constraint as solved
             if (constraints[newResult.constraintsMet].symbol == symbol) {
                 ++newResult.constraintsMet;
@@ -71,9 +70,7 @@ void Generator::applyTransitionAndAddToQueue(std::priority_queue<GenerationResul
                 // else this result is invalid, discard it
                 return;
             }
-        }
-        else if (modules.at(symbol).spawnOnlyWithConstraint)
-        {
+        } else if (modules.at(symbol).spawnOnlyWithConstraint) {
             // if the symbol should only be placed with a constraint, discard this result
             return;
         }
