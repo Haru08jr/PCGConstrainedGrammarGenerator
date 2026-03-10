@@ -20,6 +20,10 @@ struct NFACompilationException : std::exception{
     explicit NFACompilationException(const NFAErrorType errorType) : errorType(errorType){}
 };
 
+/**
+ * Used to construct a NFA from a RegularExpression tree.
+ * NFACompilers are NFA-specific, which means that for each new NFA a new compiler has to be created.
+ */
 class NFACompiler {
 public:
     explicit NFACompiler(const std::shared_ptr<RegularExpression>& regex);
