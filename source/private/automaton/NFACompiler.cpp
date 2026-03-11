@@ -1,7 +1,7 @@
 ﻿
 #include "../../public/automaton/NFACompiler.hpp"
 
-NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex){
+NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) : constructionError(NFAErrorType::NoError){
     try {
         constructedNFA = fromRegex(regex);
     }catch (NFACompilationException& e) {
