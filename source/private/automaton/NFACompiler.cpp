@@ -1,5 +1,5 @@
 ﻿
-#include "../../public/automaton/NFACompiler.hpp"
+#include "automaton/NFACompiler.hpp"
 
 NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) : constructionError(NFAErrorType::NoError){
     try {

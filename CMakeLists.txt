@@ -18,6 +18,6 @@ add_executable(PCGGrammarsWithConstraints main.cpp
         source/public/regex/RegularExpression.hpp
         source/private/regex/RegexParser.cpp
         source/public/regex/RegexParser.hpp
-        source/public/utils/GraphUtils.cpp
+        source/private/utils/GraphUtils.cpp
         source/public/utils/GraphUtils.hpp
 )

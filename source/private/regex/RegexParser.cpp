@@ -1,12 +1,9 @@
-﻿//
-// Created by jreut on 17.02.2026.
-//
-
-#include "../../public/regex/RegexParser.hpp"
+﻿
+#include "regex/RegexParser.hpp"
 
 #include <utility>
 
-#include "../../public/utils/StringUtils.hpp"
+#include "utils/StringUtils.hpp"
 
 bool RegexParser::consumeSpecifiedChar(char c) {
     if (peekNextChar() == c) {

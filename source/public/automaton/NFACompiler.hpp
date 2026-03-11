@@ -1,13 +1,9 @@
-﻿//
-// Created by jreut on 10.02.2026.
-//
-
-#pragma once
+﻿#pragma once
 
 #include <string>
 
 #include "NFA.hpp"
-#include "../regex/RegularExpression.hpp"
+#include "regex/RegularExpression.hpp"
 
 enum class NFAErrorType {
     NoError,

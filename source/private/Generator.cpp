@@ -1,4 +1,4 @@
-﻿#include "../public/Generator.hpp"
+﻿#include "Generator.hpp"
 
 #include <algorithm>
 #include <queue>

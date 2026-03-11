@@ -1,8 +1,5 @@
-﻿//
-// Created by jreut on 10.02.2026.
-//
-
-#include "../../public/utils/StringUtils.hpp"
+﻿
+#include "utils/StringUtils.hpp"
 
 bool StringUtils::findAndReplaceAll(std::string& string, const std::string& from, const std::string& to) {
     if (string.empty() || from.empty()) {

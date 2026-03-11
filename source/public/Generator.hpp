@@ -70,9 +70,9 @@ class Generator {
 public:
     Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
     
-    const GenerationResult& getGenerationResult() const;
-    bool wasGenerationSuccessful() const;
-    GenerationErrorType getErrorInfo() const;
+    [[nodiscard]] const GenerationResult& getGenerationResult() const;
+    [[nodiscard]] bool wasGenerationSuccessful() const;
+    [[nodiscard]] GenerationErrorType getErrorInfo() const;
     
 private:
     GenerationResult result;

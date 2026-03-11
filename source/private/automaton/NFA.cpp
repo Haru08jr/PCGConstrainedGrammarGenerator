@@ -1,8 +1,6 @@
-﻿//
-// Created by jreut on 10.02.2026.
-//
+﻿
 
-#include "../../public/automaton/NFA.hpp"
+#include "automaton/NFA.hpp"
 
 NFA::NFA(State start, State accept) : start(start), accept(accept){
     addState(start);
