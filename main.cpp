@@ -27,8 +27,8 @@ int main() {
     std::vector<GenerationConstraint> constraints;
     constraints.emplace_back("d", 2.f);
 
-    const auto result = Generator::generate(modules, 2.6f, nfa, constraints);
-    std::cout << result.getGeneratedString() << std::flush;
+    Generator generator(modules, 2.6f, nfa, constraints);
+    std::cout << generator.getGenerationResult().getGeneratedString() << std::flush;
 
     return 0;
 }
