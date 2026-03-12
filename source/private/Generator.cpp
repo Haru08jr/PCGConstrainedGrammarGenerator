@@ -3,9 +3,8 @@
 #include <algorithm>
 #include <queue>
 
-Generator::Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints) 
-    : result(-1), errorType(GenerationErrorType::NoError)
-{
+Generator::Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints)
+    : result(-1), errorType(GenerationErrorType::NoError) {
     try {
         result = generate(modules, maxLength, nfa, constraints);
     } catch (const GenerationException& e) {
@@ -13,18 +12,15 @@ Generator::Generator(const std::map<std::string, GrammarModule>& modules, float 
     }
 }
 
-const GenerationResult& Generator::getGenerationResult() const
-{
+const GenerationResult& Generator::getGenerationResult() const {
     return result;
 }
 
-bool Generator::wasGenerationSuccessful() const
-{
+bool Generator::wasGenerationSuccessful() const {
     return errorType == GenerationErrorType::NoError;
 }
 
-GenerationErrorType Generator::getErrorInfo() const
-{
+GenerationErrorType Generator::getErrorInfo() const {
     return errorType;
 }
 
@@ -47,15 +43,17 @@ GenerationResult Generator::generate(const std::map<std::string, GrammarModule>&
         const auto currentResult = queue.top();
         queue.pop();
 
-        if (nfa.getAccept() == currentResult.currentState && currentResult.constraintsMet == constraints.size()) {
-            // if this result exceeds the maximum length, there will be no better result than the saved one
-            if (currentResult.currentLength > maxLength) {
-                return bestResult;
-            }
+        if (nfa.getAccept() == currentResult.currentState) {
+            if (currentResult.constraintsMet == constraints.size()) {
+                // if this result exceeds the maximum length, there will be no better result than the saved one
+                if (currentResult.currentLength > maxLength) {
+                    return bestResult;
+                }
 
-            // if currentResult is longer than the saved best result, save it as the best
-            if (currentResult.currentLength > bestResult.currentLength) {
-                bestResult = currentResult;
+                // if currentResult is longer than the saved best result, save it as the best
+                if (currentResult.currentLength > bestResult.currentLength) {
+                    bestResult = currentResult;
+                }
             }
         } else {
             for (const auto& transition: nfa.getAllTransitions(currentResult.currentState)) {

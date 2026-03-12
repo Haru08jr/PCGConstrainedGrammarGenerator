@@ -10,7 +10,7 @@
 #include "utils/GraphUtils.hpp"
 
 int main() {
-    const RegexParser parser("[c|d]*");
+    const RegexParser parser("[w|c|d]*");
     const auto regex = parser.getParsedRegex();
 
     const NFACompiler compiler(regex);
@@ -20,7 +20,7 @@ int main() {
     graph.printGraph();
 
     std::map<std::string, GrammarModule> modules;
-    modules.emplace("w", GrammarModule{"w", 2.f});
+    modules.emplace("w", GrammarModule{"w", 0.1f});
     modules.emplace("c", GrammarModule{"c", 0.5});
     modules.emplace("d", GrammarModule{"d", 1.f});
 
