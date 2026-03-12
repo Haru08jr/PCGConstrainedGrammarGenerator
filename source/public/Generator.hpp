@@ -29,6 +29,12 @@ struct GenerationResult {
     std::vector<std::string> currentSymbols;
     State currentState;
 
+    /**
+     * Saves all states that were previously reached with epsilon-transitions.
+     * Used for detecting epsilon cycles.
+     */
+    std::vector<State> epsilonChain;
+
     int epsilons = 0;
     float currentLength = 0;
     int constraintsMet = 0;
@@ -44,7 +50,7 @@ struct GenerationResult {
 
     /** Shorter results with less epsilons are larger (and therefore prioritized in a queue) */
     bool operator<(const GenerationResult& other) const {
-        if (epsilons != other.epsilons)
+        if (currentLength == other.currentLength)
             return epsilons > other.epsilons;
 
         return currentLength > other.currentLength;
@@ -68,18 +74,21 @@ struct GenerationException : std::exception {
 
 class Generator {
 public:
-    Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
-    
+    Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, const std::vector<GenerationConstraint>& constraints);
+
     [[nodiscard]] const GenerationResult& getGenerationResult() const;
     [[nodiscard]] bool wasGenerationSuccessful() const;
     [[nodiscard]] GenerationErrorType getErrorInfo() const;
-    
+
 private:
     GenerationResult result;
     GenerationErrorType errorType;
-    
-    static GenerationResult generate(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, std::vector<GenerationConstraint> constraints);
 
-    static void applyTransitionAndAddToQueue(std::priority_queue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition, const std::map<std::string, GrammarModule>& modules, std::vector<GenerationConstraint>
-                                             constraints);
+    float maxLength;
+    const std::map<std::string, GrammarModule>& modules;
+    const NFA& nfa;
+    std::vector<GenerationConstraint> sortedConstraints;
+
+    [[nodiscard]] GenerationResult generate() const;
+    void applyTransitionAndAddToQueue(std::priority_queue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition) const;
 };

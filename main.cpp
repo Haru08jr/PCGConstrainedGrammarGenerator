@@ -20,14 +20,14 @@ int main() {
     graph.printGraph();
 
     std::map<std::string, GrammarModule> modules;
-    modules.emplace("w", GrammarModule{"w", 0.1f});
-    modules.emplace("c", GrammarModule{"c", 0.5});
+    modules.emplace("w", GrammarModule{"w", 2.f});
+    modules.emplace("c", GrammarModule{"c", 0.5f});
     modules.emplace("d", GrammarModule{"d", 1.f});
 
     std::vector<GenerationConstraint> constraints;
     constraints.emplace_back("d", 2.f);
 
-    Generator generator(modules, 2.6f, nfa, constraints);
+    Generator generator(modules, 10.6f, nfa, constraints);
     std::cout << generator.getGenerationResult().getGeneratedString() << std::flush;
 
     return 0;
