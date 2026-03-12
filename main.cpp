@@ -10,14 +10,18 @@
 #include "utils/GraphUtils.hpp"
 
 int main() {
-    const RegexParser parser("[w|c|d]*");
+    const RegexParser parser("[w|d]*");
     const auto regex = parser.getParsedRegex();
 
     const NFACompiler compiler(regex);
-    const auto& nfa = compiler.getConstructedNFA();
+    const auto& eNFA = compiler.getConstructedNFA();
 
-    const NFAGraph graph(nfa);
-    graph.printGraph();
+    const NFAGraph eGraph(eNFA);
+    eGraph.printGraph("eGraph");
+
+    NonEpsilonNFA neNFA(eNFA);
+    const NFAGraph neGraph(neNFA);
+    neGraph.printGraph("neGraph");
 
     std::map<std::string, GrammarModule> modules;
     modules.emplace("w", GrammarModule{"w", 2.f});
@@ -27,7 +31,7 @@ int main() {
     std::vector<GenerationConstraint> constraints;
     constraints.emplace_back("d", 2.f);
 
-    Generator generator(modules, 10.6f, nfa, constraints);
+    Generator generator(modules, 10.6f, eNFA, constraints);
     std::cout << generator.getGenerationResult().getGeneratedString() << std::flush;
 
     return 0;

@@ -13,6 +13,7 @@ struct GraphVertex {
 class NFAGraph {
 public:
     explicit NFAGraph(const EpsilonNFA& nfa);
+    explicit NFAGraph(const NonEpsilonNFA& nfa);
 
     void printGraph(const std::string& filename = "graph") const;
 
@@ -23,9 +24,9 @@ private:
 
 const auto stateVertexWriter{
     [](graaf::vertex_id_t /*vertex_id*/, const GraphVertex& vertex) -> std::string {
-        return "label=\"" + static_cast<std::string>(vertex.isStart ? "Start : " : vertex.isAccept ? "Accept : " : "")
+        return static_cast<std::string>("label=\"") + (vertex.isStart ? "Start : " : "")
             + std::to_string(vertex.state) + "\""
-            + (vertex.isStart || vertex.isAccept ? "style=\"bold\"" : "");
+            + (vertex.isAccept ? "style=\"bold\"" : "");
     }};
 
 const auto edgeVertexWriter{
