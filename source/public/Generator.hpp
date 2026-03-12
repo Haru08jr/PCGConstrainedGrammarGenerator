@@ -24,7 +24,7 @@ struct GrammarModule
 };
 
 struct GenerationResult {
-    explicit GenerationResult(State initialState) : currentState(initialState) {}
+    explicit GenerationResult(const State initialState) : currentState(initialState) {}
 
     std::vector<std::string> currentSymbols;
     State currentState;
@@ -74,7 +74,7 @@ struct GenerationException : std::exception {
 
 class Generator {
 public:
-    Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, const std::vector<GenerationConstraint>& constraints);
+    Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const EpsilonNFA& nfa, const std::vector<GenerationConstraint>& constraints);
 
     [[nodiscard]] const GenerationResult& getGenerationResult() const;
     [[nodiscard]] bool wasGenerationSuccessful() const;
@@ -86,7 +86,7 @@ private:
 
     float maxLength;
     const std::map<std::string, GrammarModule>& modules;
-    const NFA& nfa;
+    const EpsilonNFA& nfa;
     std::vector<GenerationConstraint> sortedConstraints;
 
     [[nodiscard]] GenerationResult generate() const;

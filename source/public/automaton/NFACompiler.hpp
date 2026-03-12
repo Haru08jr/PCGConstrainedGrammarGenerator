@@ -24,48 +24,48 @@ class NFACompiler {
 public:
     explicit NFACompiler(const std::shared_ptr<RegularExpression>& regex);
 
-    [[nodiscard]] const NFA& getConstructedNFA() const;
+    [[nodiscard]] const EpsilonNFA& getConstructedNFA() const;
     [[nodiscard]] bool wasConstructionSuccessful() const;
     [[nodiscard]] NFAErrorType getErrorInfo() const;
 
 private:
     int nextStateLabel = 0;
 
-    NFA constructedNFA;
+    EpsilonNFA constructedNFA;
     NFAErrorType constructionError;
 
     /** Recursively construct a NFA from a regex. */
-    NFA fromRegex(const std::shared_ptr<RegularExpression>& regex);
+    EpsilonNFA fromRegex(const std::shared_ptr<RegularExpression>& regex);
 
     /** Get a new unique state label. */
     State makeNewStateLabel() { return nextStateLabel++; }
     /** Add a copy of all states and transitions in source into dest. */
-    static void copyContent(NFA& dest, const NFA& source);
+    static void copyContent(EpsilonNFA& dest, const EpsilonNFA& source);
     /** Create a new NFA that is a unique copy of toCopy (= same structure, but no shared states) */
-    NFA makeUniqueCopy(const NFA& toCopy);
+    EpsilonNFA makeUniqueCopy(const EpsilonNFA& toCopy);
 
     // NFA construction functions
     /** Create a new NFA with only a start and accept state and no transitions. */
-    NFA makeEmptyNFA();
+    EpsilonNFA makeEmptyNFA();
     /** Create a new NFA with an epsilon edge from start state to accept state. */
-    NFA makeEpsilonNFA();
+    EpsilonNFA makeEpsilonNFA();
     /** Create a new NFA with a labled edge from start state to accept state. */
-    NFA makeAtomicNFA(const std::string& label);
+    EpsilonNFA makeAtomicNFA(const std::string& label);
 
     /** Create a new NFA of the structure (start -> (nfa) -> accept). */
-    NFA wrapNFA(const NFA& toWrap);
+    EpsilonNFA wrapNFA(const EpsilonNFA& toWrap);
 
     /** Create a new NFA that represents the regex [first,second] */
-    static NFA concatenate(const NFA& first, const NFA& second);
+    static EpsilonNFA concatenate(const EpsilonNFA& first, const EpsilonNFA& second);
     /** Create a new NFA that represents the regex [toRepeat]* */
-    NFA repeat(const NFA& toRepeat);
+    EpsilonNFA repeat(const EpsilonNFA& toRepeat);
     /** Create a new NFA that represents the regex [toRepeat]+ */
-    NFA repeatAtLeastOnce(const NFA& toRepeat);
+    EpsilonNFA repeatAtLeastOnce(const EpsilonNFA& toRepeat);
     /** Create a new NFA that represents the regex [first|second] */
-    NFA alternative(const NFA& first, const NFA& second);
+    EpsilonNFA alternative(const EpsilonNFA& first, const EpsilonNFA& second);
     /** Create a new NFA that represents the regex [optional]? */
-    NFA optional(const NFA& optional);
+    EpsilonNFA optional(const EpsilonNFA& optional);
     /** Create a new NFA that represents the regex [toRepeat]n */
-    NFA repeatNTimes(const NFA& toRepeat, int n);
+    EpsilonNFA repeatNTimes(const EpsilonNFA& toRepeat, int n);
 
 };

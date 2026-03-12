@@ -7,10 +7,10 @@ typedef int State;
 
 class Edge {
 public:
-    Edge(State s, State t) : from(s), to(t), isEpsilonEdge(true) {
+    Edge(const State s, const State t) : from(s), to(t), isEpsilonEdge(true) {
     }
 
-    Edge(State s, State t, std::string label) : from(s), to(t), isEpsilonEdge(false), label(std::move(label)) {}
+    Edge(const State s, const State t, std::string label) : from(s), to(t), isEpsilonEdge(false), label(std::move(label)) {}
 
     Edge(const Edge& other) : from(other.from), to(other.to), isEpsilonEdge(other.isEpsilonEdge), label(other.getLabel()){}
 

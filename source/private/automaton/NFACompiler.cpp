@@ -1,6 +1,8 @@
 ﻿
 #include "automaton/NFACompiler.hpp"
 
+#include <ranges>
+
 NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) : constructionError(NFAErrorType::NoError){
     try {
         constructedNFA = fromRegex(regex);
@@ -9,7 +11,7 @@ NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) : cons
     }
 }
 
-const NFA& NFACompiler::getConstructedNFA() const {
+const EpsilonNFA& NFACompiler::getConstructedNFA() const {
     return constructedNFA;
 }
 
@@ -21,7 +23,7 @@ NFAErrorType NFACompiler::getErrorInfo() const {
     return constructionError;
 }
 
-NFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
+EpsilonNFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
     if (!regex)
         throw NFACompilationException(NFAErrorType::EmptyRegex);
 
@@ -68,29 +70,29 @@ NFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
     throw NFACompilationException(NFAErrorType::InvalidRegex);
 }
 
-void NFACompiler::copyContent(NFA& dest, const NFA& source) {
-    for (const auto& [state, transitions] : source.getAllStates()) {
+void NFACompiler::copyContent(EpsilonNFA& dest, const EpsilonNFA& source) {
+    for (const auto& state: source.getAllStates() | std::views::keys) {
         dest.addState(state);
     }
-    for (const auto& [state, transitions] : source.getAllStates()) {
+    for (const auto& transitions: source.getAllStates() | std::views::values) {
         for (const auto& transition : transitions) {
             dest.addTransition(transition);
         }
     }
 }
 
-NFA NFACompiler::makeUniqueCopy(const NFA& toCopy) {
+EpsilonNFA NFACompiler::makeUniqueCopy(const EpsilonNFA& toCopy) {
     auto nfa = makeEmptyNFA();
 
     // Matches state in toCopy to newly created state
     std::map<State, State> stateLookup;
 
-    for (const auto& [state, transitions] : toCopy.getAllStates()) {
+    for (const auto& state: toCopy.getAllStates() | std::views::keys) {
         State newState = makeNewStateLabel();
         stateLookup.emplace(state, newState);
         nfa.addState(newState);
     }
-    for (const auto& [state, transitions] : toCopy.getAllStates()) {
+    for (const auto& transitions: toCopy.getAllStates() | std::views::values) {
         for (const auto& transition : transitions) {
             if (transition.isEpsilon())
                 nfa.addTransition({stateLookup[transition.getFrom()], stateLookup[transition.getTo()]});
@@ -104,23 +106,23 @@ NFA NFACompiler::makeUniqueCopy(const NFA& toCopy) {
     return nfa;
 }
 
-NFA NFACompiler::makeEmptyNFA() {
+EpsilonNFA NFACompiler::makeEmptyNFA() {
     return {makeNewStateLabel(), makeNewStateLabel()};
 }
 
-NFA NFACompiler::makeEpsilonNFA() {
+EpsilonNFA NFACompiler::makeEpsilonNFA() {
     auto nfa = makeEmptyNFA();
     nfa.addTransition({nfa.getStart(), nfa.getAccept()});
     return nfa;
 }
 
-NFA NFACompiler::makeAtomicNFA(const std::string& label) {
+EpsilonNFA NFACompiler::makeAtomicNFA(const std::string& label) {
     auto nfa = makeEmptyNFA();
     nfa.addTransition({nfa.getStart(), nfa.getAccept(), label});
     return nfa;
 }
 
-NFA NFACompiler::wrapNFA(const NFA& toWrap) {
+EpsilonNFA NFACompiler::wrapNFA(const EpsilonNFA& toWrap) {
     // construct (start -> (nfa) -> accept)
     auto nfa = makeEmptyNFA();
     copyContent(nfa, toWrap);
@@ -130,7 +132,7 @@ NFA NFACompiler::wrapNFA(const NFA& toWrap) {
     return nfa;
 }
 
-NFA NFACompiler::concatenate(const NFA& first, const NFA& second) {
+EpsilonNFA NFACompiler::concatenate(const EpsilonNFA& first, const EpsilonNFA& second) {
     auto nfa{first};
     copyContent(nfa, second);
     nfa.setStart(first.getStart());
@@ -140,7 +142,7 @@ NFA NFACompiler::concatenate(const NFA& first, const NFA& second) {
     return nfa;
 }
 
-NFA NFACompiler::repeat(const NFA& toRepeat) {
+EpsilonNFA NFACompiler::repeat(const EpsilonNFA& toRepeat) {
     // construct NFA that repeats toRepeat at least once
     auto nfa = repeatAtLeastOnce(toRepeat);
 
@@ -149,7 +151,7 @@ NFA NFACompiler::repeat(const NFA& toRepeat) {
     return nfa;
 }
 
-NFA NFACompiler::repeatAtLeastOnce(const NFA& toRepeat) {
+EpsilonNFA NFACompiler::repeatAtLeastOnce(const EpsilonNFA& toRepeat) {
     // construct (start -> (toRepeat) -> accept)
     auto nfa = wrapNFA(toRepeat);
 
@@ -159,7 +161,7 @@ NFA NFACompiler::repeatAtLeastOnce(const NFA& toRepeat) {
     return nfa;
 }
 
-NFA NFACompiler::alternative(const NFA& first, const NFA& second) {
+EpsilonNFA NFACompiler::alternative(const EpsilonNFA& first, const EpsilonNFA& second) {
     // construct (start  (first) (second) accept)
     auto nfa = makeEmptyNFA();
     copyContent(nfa, first);
@@ -176,7 +178,7 @@ NFA NFACompiler::alternative(const NFA& first, const NFA& second) {
     return nfa;
 }
 
-NFA NFACompiler::optional(const NFA& optional) {
+EpsilonNFA NFACompiler::optional(const EpsilonNFA& optional) {
     // construct (start -> (optional) -> accept)
     auto nfa = wrapNFA(optional);
 
@@ -186,7 +188,7 @@ NFA NFACompiler::optional(const NFA& optional) {
     return nfa;
 }
 
-NFA NFACompiler::repeatNTimes(const NFA& toRepeat, int n) {
+EpsilonNFA NFACompiler::repeatNTimes(const EpsilonNFA& toRepeat, int n) {
     
    auto previous = makeUniqueCopy(toRepeat);
 

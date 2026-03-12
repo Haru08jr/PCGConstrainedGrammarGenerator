@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <queue>
 
-Generator::Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NFA& nfa, const std::vector<GenerationConstraint>& constraints)
+Generator::Generator(const std::map<std::string, GrammarModule>& modules, const float maxLength, const EpsilonNFA& nfa, const std::vector<GenerationConstraint>& constraints)
     : result(-1), errorType(GenerationErrorType::NoError), maxLength(maxLength), modules(modules), nfa(nfa), sortedConstraints(constraints) {
     // sort the constraints by position along the generation shape
     std::sort(sortedConstraints.begin(), sortedConstraints.end());

@@ -4,19 +4,18 @@
 
 #include "Edge.hpp"
 
-
-class NFA {
+class EpsilonNFA {
 public:
-    NFA() : start(0), accept(0) {}
-    NFA(State start, State accept);
-    NFA(const NFA& other);
+    EpsilonNFA() : start(0), accept(0) {}
+    EpsilonNFA(State start, State accept);
+    EpsilonNFA(const EpsilonNFA& other);
 
-    void addState(const State& state);
+    void addState(State state);
 
     void addTransition(const Edge& edge);
 
-    void setStart(State state) { start = state; }
-    void setAccept(State state) { accept = state; }
+    void setStart(const State state) { start = state; }
+    void setAccept(const State state) { accept = state; }
 
     [[nodiscard]] State getStart() const { return start; }
     [[nodiscard]] State getAccept() const { return accept; }

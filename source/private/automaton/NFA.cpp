@@ -1,30 +1,31 @@
 ﻿
-
 #include "automaton/NFA.hpp"
 
-NFA::NFA(State start, State accept) : start(start), accept(accept){
+#include <ranges>
+
+EpsilonNFA::EpsilonNFA(const State start, const State accept) : start(start), accept(accept){
     addState(start);
     addState(accept);
 }
 
-NFA::NFA(const NFA& other) : start(other.start), accept(other.accept) {
-    for (const auto& [state, edges]: other.states) {
+EpsilonNFA::EpsilonNFA(const EpsilonNFA& other) : start(other.start), accept(other.accept) {
+    for (const auto& state: other.states | std::views::keys) {
         addState(state);
     }
-    for (const auto& [state, edges]: other.states) {
+    for (const auto& edges: other.states | std::views::values) {
         for (const auto& edge : edges) {
             addTransition(edge);
         }
     }
 }
 
-void NFA::addState(const State& name) {
-    if (!states.contains(name)) {
-        states.insert(std::make_pair(name, std::set<Edge>()));
+void EpsilonNFA::addState(const State state) {
+    if (!states.contains(state)) {
+        states.insert(std::make_pair(state, std::set<Edge>()));
     }
 }
 
-void NFA::addTransition(const Edge& edge) {
+void EpsilonNFA::addTransition(const Edge& edge) {
     if (states.contains(edge.getFrom()) && states.contains(edge.getTo())) {
         states[edge.getFrom()].insert(edge);
     }
