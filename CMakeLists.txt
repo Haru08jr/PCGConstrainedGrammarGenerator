@@ -20,4 +20,5 @@ add_executable(PCGGrammarsWithConstraints main.cpp
         source/public/regex/RegexParser.hpp
         source/private/utils/GraphUtils.cpp
         source/public/utils/GraphUtils.hpp
+        source/public/utils/UniquePriorityQueue.hpp
 )

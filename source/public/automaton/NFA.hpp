@@ -67,6 +67,8 @@ public:
     [[nodiscard]] bool isStart(const State state) const { return startStates.contains(state); }
     [[nodiscard]] bool isAccept(const State state) const { return acceptStates.contains(state); }
 
+    [[nodiscard]] const auto& getStartStates() const { return startStates; }
+
 private:
     std::set<State> startStates;
     std::set<State> acceptStates;
