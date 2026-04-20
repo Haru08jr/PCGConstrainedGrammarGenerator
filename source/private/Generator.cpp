@@ -44,14 +44,11 @@ GenerationErrorType Generator::getErrorInfo() const {
 GenerationResultWithEpsilons Generator::generate(const EpsilonNFA& nfa) const {
     // queue of intermediate results sorted by least amount of epsilon-transitions & shortest length
     std::priority_queue<GenerationResultWithEpsilons> queue;
-    // Fill the queue with all outgoing transitions of the start state
-    const GenerationResultWithEpsilons start(nfa.getStart());
-    for (const auto& transition: nfa.getAllTransitions(nfa.getStart())) {
-        applyTransitionAndAddToQueue(queue, start, transition);
-    }
-
     // saves the most optimal result
     GenerationResultWithEpsilons bestResult(-1);
+
+    // Add an empty result at the start state to the queue
+    queue.emplace(nfa.getStart());
 
     while (!queue.empty()) {
         const auto currentResult = queue.top();
@@ -59,7 +56,7 @@ GenerationResultWithEpsilons Generator::generate(const EpsilonNFA& nfa) const {
 
         if (nfa.getAccept() == currentResult.currentState && currentResult.constraintsMet == sortedConstraints.size()) {
             // if currentResult is longer than the saved best result, save it as the best
-            if (currentResult.currentLength > bestResult.currentLength) {
+            if (bestResult.currentLength < currentResult.currentLength) {
                 bestResult = currentResult;
             }
         } else {
@@ -69,6 +66,7 @@ GenerationResultWithEpsilons Generator::generate(const EpsilonNFA& nfa) const {
         }
     }
 
+    // ReSharper disable once CppDFAConstantConditions
     if (!bestResult.isValid())
         throw GenerationException(GenerationErrorType::ConstraintsNotSatisfiable);
 
@@ -88,6 +86,7 @@ void Generator::applyTransitionAndAddToQueue(std::priority_queue<GenerationResul
         newResult.epsilonChain.push_back(newResult.currentState);
     } else {
         newResult.epsilonChain.clear();
+        newResult.epsilonChain.push_back(transition.getTo());
 
         const auto symbol = transition.getLabel();
 
