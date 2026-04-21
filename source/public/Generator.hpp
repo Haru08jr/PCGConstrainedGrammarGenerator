@@ -29,6 +29,15 @@ struct GenerationResult {
 
     std::vector<std::string> currentSymbols;
     State currentState;
+    float currentLength = 0;
+    int constraintsMet = 0;
+
+    int epsilons = 0;
+    /**
+     * Saves all states that were previously reached with epsilon-transitions.
+     * Used for detecting epsilon cycles.
+     */
+    std::vector<State> epsilonChain;
 
     [[nodiscard]] std::string getGeneratedString() const {
         std::string result;
@@ -39,10 +48,9 @@ struct GenerationResult {
         return  result.substr(0, result.length() - 1);
     }
 
-    float currentLength = 0;
-    int constraintsMet = 0;
-
     bool operator<(const GenerationResult& other) const {
+        if (epsilons != other.epsilons)
+            return epsilons > other.epsilons;
         if (currentLength != other.currentLength)
             return currentLength > other.currentLength;
         if (currentSymbols.size() != other.currentSymbols.size())
@@ -57,7 +65,7 @@ struct GenerationResult {
         return false;
     }
     bool operator==(const GenerationResult& other) const {
-        if (currentState != other.currentState || currentLength != other.currentLength || currentSymbols.size() != other.currentSymbols.size())
+        if (epsilons != other.epsilons || currentState != other.currentState || currentLength != other.currentLength || currentSymbols.size() != other.currentSymbols.size())
             return false;
 
         for (int i = 0; i < currentSymbols.size(); ++i) {
@@ -69,25 +77,6 @@ struct GenerationResult {
 
     [[nodiscard]] bool isValid() const {
         return currentState != -1;
-    }
-};
-
-struct GenerationResultWithEpsilons : public GenerationResult{
-    explicit GenerationResultWithEpsilons(const State initialState) : GenerationResult(initialState) {}
-
-    /**
-     * Saves all states that were previously reached with epsilon-transitions.
-     * Used for detecting epsilon cycles.
-     */
-    std::vector<State> epsilonChain;
-    int epsilons = 0;
-
-    /** Shorter results with less epsilons are larger (and therefore prioritized in a queue) */
-    bool operator<(const GenerationResultWithEpsilons& other) const {
-        if (currentLength == other.currentLength)
-            return epsilons > other.epsilons;
-
-        return currentLength > other.currentLength;
     }
 };
 
@@ -105,7 +94,6 @@ struct GenerationException : std::exception {
 class Generator {
 public:
     Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const EpsilonNFA& nfa, const std::vector<GenerationConstraint>& constraints);
-    Generator(const std::map<std::string, GrammarModule>& modules, float maxLength, const NonEpsilonNFA& nfa, const std::vector<GenerationConstraint>& constraints);
 
     [[nodiscard]] GenerationResult getGenerationResult() const;
     [[nodiscard]] bool wasGenerationSuccessful() const;
@@ -119,9 +107,6 @@ private:
     const std::map<std::string, GrammarModule>& modules;
     std::vector<GenerationConstraint> sortedConstraints;
 
-    [[nodiscard]] GenerationResultWithEpsilons generate(const EpsilonNFA& nfa) const;
-    void applyTransitionAndAddToQueue(std::priority_queue<GenerationResultWithEpsilons>& queue, const GenerationResultWithEpsilons& previousResult, const Edge& transition) const;
-
-    [[nodiscard]] GenerationResult generate(const NonEpsilonNFA& nfa) const;
-    void applyTransitionAndAddToQueue(UniquePriorityQueue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition) const;
+    [[nodiscard]] GenerationResult generate(const EpsilonNFA& nfa) const;
+    void applyTransitionAndAddToQueue(std::queue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition) const;
 };
