@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <set>
 #include <string>
 
 #include "RegularExpression.hpp"
@@ -17,6 +18,7 @@ enum class RegexErrorType {
     NoError,
     EmptyString,
     MissingLiteral,
+    UnknownLiteral,
     InvalidString
 };
 
@@ -33,7 +35,7 @@ struct RegexParsingException : std::exception{
 class RegexParser {
 public:
     /** Initializes the parser and constructs the regex tree. */
-    explicit RegexParser(std::string string);
+    explicit RegexParser(std::string string, const std::set<std::string>& literals);
 
     /** Access the constructed regex tree. */
     [[nodiscard]] std::shared_ptr<RegularExpression> getParsedRegex() const;
@@ -43,6 +45,7 @@ public:
 
 private:
     std::string regexString;
+    const std::set<std::string> allowedLiterals;
     int parseIndex;
     std::shared_ptr<RegularExpression> parsedRegexTree;
 
@@ -57,6 +60,9 @@ private:
 
     /** Returns true if c is one of the characters specified in RegexOperators. */
     static bool isOperator(char c);
+
+    /** Checks that this literal is contained in the set of allowed literals. */
+    [[nodiscard]] bool isLiteralAllowed(const std::string& literal) const;
 
     /*
      * Parsing functions: recursively construct a regex syntax tree.

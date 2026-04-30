@@ -39,6 +39,10 @@ bool RegexParser::isOperator(char c) {
     }
 }
 
+bool RegexParser::isLiteralAllowed(const std::string& literal) const {
+    return allowedLiterals.contains(literal);
+}
+
 std::unique_ptr<RegularExpression> RegexParser::parseLiteral() {
     std::string literalString;
     while (!isOperator(peekNextChar()) && peekNextChar() != -1) {
@@ -47,6 +51,8 @@ std::unique_ptr<RegularExpression> RegexParser::parseLiteral() {
 
     if (literalString.empty())
         throw RegexParsingException(RegexErrorType::MissingLiteral);
+    if (!isLiteralAllowed(literalString))
+        throw RegexParsingException(RegexErrorType::UnknownLiteral);
 
     return std::make_unique<LiteralRegex>(literalString);
 }
@@ -110,7 +116,8 @@ std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
     return parseLiteral();
 }
 
-RegexParser::RegexParser(std::string string) : regexString(std::move(string)), parseIndex(0), parsingError(RegexErrorType::NoError) {
+RegexParser::RegexParser(std::string string, const std::set<std::string>& literals)
+    : regexString(std::move(string)), allowedLiterals(literals), parseIndex(0), parsingError(RegexErrorType::NoError) {
     // remove spaces in string
     StringUtils::findAndReplaceAll(regexString, " ", "");
 
