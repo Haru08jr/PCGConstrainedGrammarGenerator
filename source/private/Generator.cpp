@@ -91,14 +91,12 @@ void Generator::applyTransitionAndAddToQueue(std::queue<GenerationResult>& queue
             // if placing a symbol that could fulfill the next constraint
             if (sortedConstraints[newResult.constraintsMet].symbol == symbol) {
                 // and at the position of the next constraint
-                if (newResult.currentLength <= sortedConstraints[newResult.constraintsMet].position &&
-                    sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + modules.at(symbol).size) {
+                if (sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + modules.at(symbol).size) {
                     // mark this constraint as solved
                     ++newResult.constraintsMet;
                     fulfilledConstraint = true;
                 }
-            } else if (newResult.currentLength <= sortedConstraints[newResult.constraintsMet].position &&
-                       sortedConstraints[newResult.constraintsMet].position < newResult.currentLength + modules.at(symbol).size) {
+            } else if (sortedConstraints[newResult.constraintsMet].position < newResult.currentLength + modules.at(symbol).size) {
                 // if constraint position is fully covered by an incorrect symbol, this constraint can't be solved anymore -> incorrect result, discard
                 return;
             }
