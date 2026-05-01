@@ -81,17 +81,14 @@ void Generator::applyTransitionAndAddToQueue(std::queue<GenerationResult>& queue
 
         const auto symbol = transition.getLabel();
 
-        // abort in case the NFA contains an unknown symbol
-        if (!modules.contains(symbol))
-            throw GenerationException(GenerationErrorType::UnknownLiteral);
-
         bool fulfilledConstraint = false;
         // if there are still open constraints left
         if (newResult.constraintsMet < sortedConstraints.size()) {
             // if placing a symbol that could fulfill the next constraint
             if (sortedConstraints[newResult.constraintsMet].symbol == symbol) {
                 // and at the position of the next constraint
-                if (sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + modules.at(symbol).size) {
+                if (sortedConstraints[newResult.constraintsMet].position >= newResult.currentLength &&
+                    sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + modules.at(symbol).size) {
                     // mark this constraint as solved
                     ++newResult.constraintsMet;
                     fulfilledConstraint = true;
