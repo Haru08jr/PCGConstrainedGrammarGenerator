@@ -7,8 +7,10 @@
 enum RegexOperators : char{
     StartGroup = '[',
     EndGroup = ']',
+    StartOr = '{',
+    EndOr = '}',
     And = ',',
-    Or = '|',
+    //Or = '|',
     Kleene = '*',
     Plus = '+',
     Optional = '?'
@@ -66,16 +68,17 @@ private:
 
     /*
      * Parsing functions: recursively construct a regex syntax tree.
-     * Operators bind in the order Group > Repetition > Concatenation > Alternative, therefore the functions should be called in reverse order.
      */
 
-    /** Parse a chain of alternative expressions and return the resulting regex tree. */
-    std::unique_ptr<RegularExpression> parseAlternative();
     /** Parse a chain of concatenated expressions and return the resulting regex tree. */
     std::unique_ptr<RegularExpression> parseConcatenation();
-    /** Construct a unary RegularExpression repeating the subexpression. */
+    /** Construct a unary RegularExpression repeating the subexpression and return it. */
     std::unique_ptr<RegularExpression> parseRepetition();
-    /** If a group is present, restart parsing the subexpression. Else parse the subexpression as a literal. */
+    /**
+     * If a group is present, restart parsing the subexpression.
+     * If an alternative group is present, parse the subexpressions and and return the resulting regex tree.
+     * Else, parse the subexpression as a literal.
+     */
     std::unique_ptr<RegularExpression> parseGroup();
 
     /** Construct a RegularExpression from the literal coming next in the string. */

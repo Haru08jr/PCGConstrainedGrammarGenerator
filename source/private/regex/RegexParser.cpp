@@ -31,7 +31,8 @@ bool RegexParser::isOperator(char c) {
         case StartGroup:
         case EndGroup:
         case And:
-        case Or:
+        case StartOr:
+        case EndOr:
         case Kleene:
         case Plus:
         case Optional: return true;
@@ -66,16 +67,6 @@ int RegexParser::parseNumber() {
     return number;
 }
 
-std::unique_ptr<RegularExpression> RegexParser::parseAlternative() {
-    auto regex = parseConcatenation();
-
-    while (consumeSpecifiedChar(Or)) {
-        regex = std::make_unique<BinaryRegex>(Alternative, std::move(regex), parseConcatenation());
-    }
-
-    return regex;
-}
-
 std::unique_ptr<RegularExpression> RegexParser::parseConcatenation() {
     auto regex = parseRepetition();
     while (consumeSpecifiedChar(And)) {
@@ -100,18 +91,36 @@ std::unique_ptr<RegularExpression> RegexParser::parseRepetition() {
 std::unique_ptr<RegularExpression> RegexParser::parseGroup() {
     // go into parse group (repeating the recursive cycle) only if a StartGroup symbol is present
     if (consumeSpecifiedChar(StartGroup)) {
-        auto regex = parseAlternative();
+        // parse the subexpression, starting at concatenation
+        auto regex = parseConcatenation();
 
         // error if group end is missing
         if (!consumeSpecifiedChar(EndGroup))
             throw RegexParsingException(RegexErrorType::InvalidString);
 
-        // if number after group: repeat group that many times
+        // if a number can be found after the group: repeat the group that many times
         if (isdigit(peekNextChar()))
             regex = std::make_unique<UnaryRegexWithParam>(std::move(regex), parseNumber());
 
         return regex;
     }
+
+    // go into parse alternative only if a StartOr symbol is present
+    if (consumeSpecifiedChar(StartOr)) {
+        // parse the subexpression, starting at repetition
+        // (concatenation in an alternative is only possible when it is contained in a group, because the comma operator is shared)
+        auto regex = parseRepetition();
+        while (consumeSpecifiedChar(And)) {
+            regex = std::make_unique<BinaryRegex>(Alternative, std::move(regex), parseRepetition());
+        }
+
+        // error if end is missing
+        if (!consumeSpecifiedChar(EndOr))
+            throw RegexParsingException(RegexErrorType::InvalidString);
+
+        return regex;
+    }
+
     // else, you have arrived at the lowest level
     return parseLiteral();
 }
@@ -125,8 +134,8 @@ RegexParser::RegexParser(std::string string, const std::set<std::string>& litera
         if (regexString.empty())
             throw RegexParsingException(RegexErrorType::EmptyString);
 
-        // start parsing
-        parsedRegexTree = parseAlternative();
+        // start parsing at concatenation
+        parsedRegexTree = parseConcatenation();
 
         // if parsing returns before reaching the end of the string, the regex string must be invalid
         if (parseIndex < regexString.size()) {
