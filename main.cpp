@@ -17,7 +17,7 @@ int main() {
     modules.emplace("b", GrammarModule{"b", 0.25f});
 
     //const auto parseTimeStart = std::chrono::high_resolution_clock::now();
-    const RegexParser parser("[a|b]*", {"a", "b"});
+    const RegexParser parser("{a,b}*", {"a", "b"});
     const auto regex = parser.getParsedRegex();
     //const auto parseTimeEnd = std::chrono::high_resolution_clock::now();
     //std::cout << (parseTimeEnd - parseTimeStart) << std::endl;
