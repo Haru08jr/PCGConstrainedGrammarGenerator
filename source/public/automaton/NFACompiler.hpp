@@ -17,8 +17,8 @@ struct NFACompilationException : std::exception{
 };
 
 /**
- * Used to construct a NFA from a RegularExpression tree.
- * NFACompilers are NFA-specific, which means that for each new NFA a new compiler has to be created.
+ * Used to construct an epsion-NFA from a RegularExpression tree.
+ * Compilers are NFA-specific, which means that for each new NFA a new compiler has to be created.
  */
 class NFACompiler {
 public:
@@ -29,16 +29,16 @@ public:
     [[nodiscard]] NFAErrorType getErrorInfo() const;
 
 private:
-    int nextStateLabel = 0;
+    int _nextStateLabel = 0;
 
-    EpsilonNFA constructedNFA;
-    NFAErrorType constructionError;
+    EpsilonNFA _constructedNFA;
+    NFAErrorType _constructionError;
 
     /** Recursively construct a NFA from a regex. */
     EpsilonNFA fromRegex(const std::shared_ptr<RegularExpression>& regex);
 
     /** Get a new unique state label. */
-    State makeNewStateLabel() { return nextStateLabel++; }
+    State makeNewStateLabel() { return _nextStateLabel++; }
     /** Add a copy of all states and transitions in source into dest. */
     static void copyContent(EpsilonNFA& dest, const EpsilonNFA& source);
     /** Create a new NFA that is a unique copy of toCopy (= same structure, but no shared states) */
@@ -52,7 +52,7 @@ private:
     /** Create a new NFA with a labled edge from start state to accept state. */
     EpsilonNFA makeAtomicNFA(const std::string& label);
 
-    /** Create a new NFA of the structure (start -> (nfa) -> accept). */
+    /** Create a new NFA of the structure (start -> (toWrap) -> accept). */
     EpsilonNFA wrapNFA(const EpsilonNFA& toWrap);
 
     /** Create a new NFA that represents the regex [first,second] */
@@ -61,7 +61,7 @@ private:
     EpsilonNFA repeat(const EpsilonNFA& toRepeat);
     /** Create a new NFA that represents the regex [toRepeat]+ */
     EpsilonNFA repeatAtLeastOnce(const EpsilonNFA& toRepeat);
-    /** Create a new NFA that represents the regex [first|second] */
+    /** Create a new NFA that represents the regex {first,second} */
     EpsilonNFA alternative(const EpsilonNFA& first, const EpsilonNFA& second);
     /** Create a new NFA that represents the regex [optional]? */
     EpsilonNFA optional(const EpsilonNFA& optional);

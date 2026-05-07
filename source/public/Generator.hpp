@@ -5,7 +5,6 @@
 #include <vector>
 #include "automaton/Edge.hpp"
 #include "automaton/NFA.hpp"
-#include "utils/UniquePriorityQueue.hpp"
 
 struct GenerationConstraint {
     std::string symbol;
@@ -48,33 +47,6 @@ struct GenerationResult {
         return  result.substr(0, result.length() - 1);
     }
 
-    bool operator<(const GenerationResult& other) const {
-        if (epsilons != other.epsilons)
-            return epsilons > other.epsilons;
-        if (currentLength != other.currentLength)
-            return currentLength > other.currentLength;
-        if (currentSymbols.size() != other.currentSymbols.size())
-            return currentSymbols.size() > other.currentSymbols.size();
-        if (currentState != other.currentState)
-            return currentState > other.currentState;
-
-        for (int i = 0; i < currentSymbols.size(); ++i) {
-            if (currentSymbols[i] != other.currentSymbols[i])
-                return currentSymbols[i] > other.currentSymbols[i];
-        }
-        return false;
-    }
-    bool operator==(const GenerationResult& other) const {
-        if (epsilons != other.epsilons || currentState != other.currentState || currentLength != other.currentLength || currentSymbols.size() != other.currentSymbols.size())
-            return false;
-
-        for (int i = 0; i < currentSymbols.size(); ++i) {
-            if (currentSymbols[i] != other.currentSymbols[i])
-                return false;
-        }
-        return true;
-    }
-
     [[nodiscard]] bool isValid() const {
         return currentState != -1;
     }
@@ -82,7 +54,6 @@ struct GenerationResult {
 
 enum class GenerationErrorType {
     NoError,
-    UnknownLiteral,
     ConstraintsNotSatisfiable
 };
 
@@ -100,12 +71,12 @@ public:
     [[nodiscard]] GenerationErrorType getErrorInfo() const;
 
 private:
-    GenerationResult result;
-    GenerationErrorType errorType;
+    GenerationResult _result;
+    GenerationErrorType _errorType;
 
-    float maxLength;
-    const std::map<std::string, GrammarModule>& modules;
-    std::vector<GenerationConstraint> sortedConstraints;
+    float _maxLength;
+    const std::map<std::string, GrammarModule>& _modules;
+    std::vector<GenerationConstraint> _sortedConstraints;
 
     [[nodiscard]] GenerationResult generate(const EpsilonNFA& nfa) const;
     void applyTransitionAndAddToQueue(std::queue<GenerationResult>& queue, const GenerationResult& previousResult, const Edge& transition) const;

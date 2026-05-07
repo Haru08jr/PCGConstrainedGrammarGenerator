@@ -29,18 +29,18 @@ protected:
  */
 class EpsilonNFA : public NFA {
 public:
-    EpsilonNFA() : start(0), accept(0) {
+    EpsilonNFA() : _start(0), _accept(0) {
     }
 
     EpsilonNFA(State start, State accept);
 
     EpsilonNFA(const EpsilonNFA& other);
 
-    void setStart(const State state) { start = state; }
-    void setAccept(const State state) { accept = state; }
+    void setStart(const State state) { _start = state; }
+    void setAccept(const State state) { _accept = state; }
 
-    [[nodiscard]] State getStart() const { return start; }
-    [[nodiscard]] State getAccept() const { return accept; }
+    [[nodiscard]] State getStart() const { return _start; }
+    [[nodiscard]] State getAccept() const { return _accept; }
 
     /** Finds the epsilon closure (set of states that can be reached using only epsilon transitions) for each state in the NFA. */
     [[nodiscard]] std::map<State, std::set<State> > getEpsilonClosures() const;
@@ -48,8 +48,8 @@ public:
     [[nodiscard]] std::map<State, std::set<Edge>> getAllLabledTransitions() const;
 
 private:
-    State start;
-    State accept;
+    State _start;
+    State _accept;
 };
 
 /**
@@ -64,12 +64,12 @@ public:
     void addStart(State start);
     void addAccept(State accept);
 
-    [[nodiscard]] bool isStart(const State state) const { return startStates.contains(state); }
-    [[nodiscard]] bool isAccept(const State state) const { return acceptStates.contains(state); }
+    [[nodiscard]] bool isStart(const State state) const { return _startStates.contains(state); }
+    [[nodiscard]] bool isAccept(const State state) const { return _acceptStates.contains(state); }
 
-    [[nodiscard]] const auto& getStartStates() const { return startStates; }
+    [[nodiscard]] const auto& getStartStates() const { return _startStates; }
 
 private:
-    std::set<State> startStates;
-    std::set<State> acceptStates;
+    std::set<State> _startStates;
+    std::set<State> _acceptStates;
 };

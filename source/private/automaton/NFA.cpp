@@ -21,12 +21,12 @@ void NFA::addTransitionWithStates(const Edge& edge) {
     addTransition(edge);
 }
 
-EpsilonNFA::EpsilonNFA(const State start, const State accept) : start(start), accept(accept){
+EpsilonNFA::EpsilonNFA(const State start, const State accept) : _start(start), _accept(accept){
     addState(start);
     addState(accept);
 }
 
-EpsilonNFA::EpsilonNFA(const EpsilonNFA& other) : start(other.start), accept(other.accept) {
+EpsilonNFA::EpsilonNFA(const EpsilonNFA& other) : _start(other._start), _accept(other._accept) {
     for (const auto& state: other.states | std::views::keys) {
         addState(state);
     }
@@ -115,10 +115,10 @@ NonEpsilonNFA::NonEpsilonNFA(const EpsilonNFA& epsilonNFA) {
 
 void NonEpsilonNFA::addStart(const State start) {
     if (states.contains(start))
-        startStates.insert(start);
+        _startStates.insert(start);
 }
 
 void NonEpsilonNFA::addAccept(const State accept) {
     if (states.contains(accept))
-        acceptStates.insert(accept);
+        _acceptStates.insert(accept);
 }

@@ -10,7 +10,6 @@ enum RegexOperators : char{
     StartOr = '{',
     EndOr = '}',
     And = ',',
-    //Or = '|',
     Kleene = '*',
     Plus = '+',
     Optional = '?'
@@ -46,12 +45,12 @@ public:
     [[nodiscard]] RegexErrorType getErrorInfo() const;
 
 private:
-    std::string regexString;
-    const std::set<std::string> allowedLiterals;
-    int parseIndex;
-    std::shared_ptr<RegularExpression> parsedRegexTree;
+    std::string _regexString;
+    const std::set<std::string> _allowedLiterals;
+    int _parseIndex;
 
-    RegexErrorType parsingError;
+    std::shared_ptr<RegularExpression> _parsedRegexTree;
+    RegexErrorType _parsingError;
 
     /** If the next character in the string is c, returns true and advances the index. Else returns false. */
     bool consumeSpecifiedChar(char c);
@@ -62,14 +61,12 @@ private:
 
     /** Returns true if c is one of the characters specified in RegexOperators. */
     static bool isOperator(char c);
-
     /** Checks that this literal is contained in the set of allowed literals. */
     [[nodiscard]] bool isLiteralAllowed(const std::string& literal) const;
 
     /*
      * Parsing functions: recursively construct a regex syntax tree.
      */
-
     /** Parse a chain of concatenated expressions and return the resulting regex tree. */
     std::unique_ptr<RegularExpression> parseConcatenation();
     /** Construct a unary RegularExpression repeating the subexpression and return it. */

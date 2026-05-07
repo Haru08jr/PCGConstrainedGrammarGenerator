@@ -6,27 +6,27 @@
 #include "utils/UniquePriorityQueue.hpp"
 
 Generator::Generator(const std::map<std::string, GrammarModule>& modules, const float maxLength, const EpsilonNFA& nfa, const std::vector<GenerationConstraint>& constraints)
-    : result(-1), errorType(GenerationErrorType::NoError), maxLength(maxLength), modules(modules), sortedConstraints(constraints) {
+    : _result(-1), _errorType(GenerationErrorType::NoError), _maxLength(maxLength), _modules(modules), _sortedConstraints(constraints) {
     // sort the constraints by position along the generation shape
-    std::sort(sortedConstraints.begin(), sortedConstraints.end());
+    std::sort(_sortedConstraints.begin(), _sortedConstraints.end());
 
     try {
-        result = generate(nfa);
+        _result = generate(nfa);
     } catch (const GenerationException& e) {
-        errorType = e.errorType;
+        _errorType = e.errorType;
     }
 }
 
 GenerationResult Generator::getGenerationResult() const {
-    return result;
+    return _result;
 }
 
 bool Generator::wasGenerationSuccessful() const {
-    return errorType == GenerationErrorType::NoError;
+    return _errorType == GenerationErrorType::NoError;
 }
 
 GenerationErrorType Generator::getErrorInfo() const {
-    return errorType;
+    return _errorType;
 }
 
 GenerationResult Generator::generate(const EpsilonNFA& nfa) const {
@@ -42,9 +42,9 @@ GenerationResult Generator::generate(const EpsilonNFA& nfa) const {
         const auto currentResult = intermediateResults.front();
         intermediateResults.pop();
 
-        if (nfa.getAccept() == currentResult.currentState && currentResult.constraintsMet == sortedConstraints.size()) {
+        if (nfa.getAccept() == currentResult.currentState && currentResult.constraintsMet == _sortedConstraints.size()) {
             // if the length of currentResult exactly matches the max length, a solution was found
-            if (currentResult.currentLength == maxLength)
+            if (currentResult.currentLength == _maxLength)
                 return currentResult;
 
             // if currentResult is longer than the saved best result, save it as the best
@@ -83,33 +83,33 @@ void Generator::applyTransitionAndAddToQueue(std::queue<GenerationResult>& queue
 
         bool fulfilledConstraint = false;
         // if there are still open constraints left
-        if (newResult.constraintsMet < sortedConstraints.size()) {
+        if (newResult.constraintsMet < _sortedConstraints.size()) {
             // if placing a symbol that could fulfill the next constraint
-            if (sortedConstraints[newResult.constraintsMet].symbol == symbol) {
+            if (_sortedConstraints[newResult.constraintsMet].symbol == symbol) {
                 // and at the position of the next constraint
-                if (sortedConstraints[newResult.constraintsMet].position >= newResult.currentLength &&
-                    sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + modules.at(symbol).size) {
+                if (_sortedConstraints[newResult.constraintsMet].position >= newResult.currentLength &&
+                    _sortedConstraints[newResult.constraintsMet].position <= newResult.currentLength + _modules.at(symbol).size) {
                     // mark this constraint as solved
                     ++newResult.constraintsMet;
                     fulfilledConstraint = true;
                 }
-            } else if (sortedConstraints[newResult.constraintsMet].position < newResult.currentLength + modules.at(symbol).size) {
+            } else if (_sortedConstraints[newResult.constraintsMet].position < newResult.currentLength + _modules.at(symbol).size) {
                 // if constraint position is fully covered by an incorrect symbol, this constraint can't be solved anymore -> incorrect result, discard
                 return;
             }
         }
 
         // if placing a symbol that should only be placed with a constraint without fulfilling a constraint, this result is invalid
-        if (!fulfilledConstraint && modules.at(symbol).spawnOnlyWithConstraint) {
+        if (!fulfilledConstraint && _modules.at(symbol).spawnOnlyWithConstraint) {
             return;
         }
 
         // add the new symbol to the result and increase the result's length
         newResult.currentSymbols.push_back(symbol);
-        newResult.currentLength += modules.at(symbol).size;
+        newResult.currentLength += _modules.at(symbol).size;
 
         // if the result exceeds the maximum length, discard it
-        if (newResult.currentLength > maxLength) {
+        if (newResult.currentLength > _maxLength) {
             return;
         }
     }

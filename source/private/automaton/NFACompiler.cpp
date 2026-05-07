@@ -3,24 +3,24 @@
 
 #include <ranges>
 
-NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) : constructionError(NFAErrorType::NoError){
+NFACompiler::NFACompiler(const std::shared_ptr<RegularExpression>& regex) : _constructionError(NFAErrorType::NoError){
     try {
-        constructedNFA = fromRegex(regex);
+        _constructedNFA = fromRegex(regex);
     }catch (NFACompilationException& e) {
-        constructionError = e.errorType;
+        _constructionError = e.errorType;
     }
 }
 
 const EpsilonNFA& NFACompiler::getConstructedNFA() const {
-    return constructedNFA;
+    return _constructedNFA;
 }
 
 bool NFACompiler::wasConstructionSuccessful() const {
-    return constructionError == NFAErrorType::NoError;
+    return _constructionError == NFAErrorType::NoError;
 }
 
 NFAErrorType NFACompiler::getErrorInfo() const {
-    return constructionError;
+    return _constructionError;
 }
 
 EpsilonNFA NFACompiler::fromRegex(const std::shared_ptr<RegularExpression>& regex) {
@@ -123,7 +123,7 @@ EpsilonNFA NFACompiler::makeAtomicNFA(const std::string& label) {
 }
 
 EpsilonNFA NFACompiler::wrapNFA(const EpsilonNFA& toWrap) {
-    // construct (start -> (nfa) -> accept)
+    // construct (start -> (toWrap) -> accept)
     auto nfa = makeEmptyNFA();
     copyContent(nfa, toWrap);
     nfa.addTransition({nfa.getStart(), toWrap.getStart()});
